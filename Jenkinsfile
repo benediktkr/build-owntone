@@ -44,6 +44,12 @@ pipeline {
                 }
             }
         }   
+    
+        stage('build web') {
+            steps {
+                sh "build/change-ws-url.sh"
+            }
+        }
     }
     post {
         success {
