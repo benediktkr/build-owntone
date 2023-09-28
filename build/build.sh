@@ -1,11 +1,21 @@
 #!/bin/bash
 set -e
 
-build/init-git.sh
+echo "git-init.sh"
+build/git-init.sh
+echo
+
+echo "version.sh"
 source build/version.sh
+echo
 
-git -C owntone-server/ config --worktree advice.detachedHead false 
-git -C owntone-server/ checkout $OWNTONE_VERSION
+echo "git-checkout-version.sh"
+build/git-checkout-version.sh
+echo
 
-build/change-ws-url.sh
-build/build-web.sh
+
+if [[ "${OWNTONE_BUILD_WEB}" != "false" ]]; then
+    echo "build-web.sh"
+    build/build-web.sh
+    echo
+fi  

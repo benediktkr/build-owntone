@@ -14,5 +14,7 @@ sed -i "/const socket = new/ i \ \ \ \ \ \ wsUrl = protocol + window.location.ho
 
 # Show the change.
 echo "Redefined wsUrl in App.vue:"
-grep --color=always "wsUrl.*/ws" owntone-server/web-src/src/App.vue
+#grep --color=always "wsUrl.*/ws" owntone-server/web-src/src/App.vue
+git -C owntone-server/ diff
+    
 

@@ -1,69 +1,97 @@
 #!/bin/bash
-# this file runs the docker container to build web-src
+#
+# Run npm in a docker container to build owntone-web
+#
+# This script only builds the webinterface, it doesnt patch or make any changes to the 
+# code. So that should happen before this script is called.
 
 #set -x
+set -e
 alias ls='ls --color=always'
 
-#CACHE_DIR="$HOME/.cache/npm-docker/builds/owntone/web-src/.npm"
-#mkdir -pv $CACHE_DIR
-
-CACHE_DIR="/tmp/owntone-npm"
-echo "cache dir: ${CACHE_DIR}"
-
-#mkdir -pv $NODE_MODULES_DIR
-#NODE_MODULES_DIR="$HOME/.cache/npm-docker/builds/owntone/web-src/node_modules"
-NODE_MODULES_DIR="/tmp/owntone-node_modules"
-echo "node_modules: ${NODE_MODULES_DIR}"
-
-#OUTPUT_DIR=$(pwd)/dist/htdocs
-#mkdir -pv $OUTPUT_DIR
-OUTPUT_DIR="/tmp/owntone-dist"
-echo "output dir: ${OUTPUT_DIR}"
-
-
-if [[ -d "$CACHE_DIR" ]] ; then
-    echo "we have run before, the cache dir exists"
-    ls -l $CACHE_DIR/bin
+if [[ "${OWNTONE_WEB_WS_URL}" != "false" ]]; then
+    echo "web-change-ws-url.sh"
+    build/web-change-ws-url.sh
+else
+    echo "skipped: web-change-ws-url.sh"
 fi
+
+if [[ "${OWNTONE_WEB_DARK_READER}" == "true" ]]; then
+    echo "web-add-dark-reader.sh"
+    build/web-add-dark-reader.sh
+else    
+    echo "skipped: web-add-dark-reader.sh"
+fi  
 
 
 # the /home/node dir is explicitly owned by uid 1000, and npm wants to write to $HOME/.npm (some logs)
+# best way seems to be to bind mount /owntone-server/web-src/node_modules with -v
+
+CACHE_DIR="$HOME/.cache/npm-docker/builds/owntone/web-src/.npm"
+NODE_MODULES_DIR="$HOME/.cache/npm-docker/builds/owntone/web-src/node_modules"
+OUTPUT_DIR=target/htdocs
 
 BUILD_UID=$(id -u)
 BUILD_GID=$(id -g)
 
-echo "Running as uid=${BUILD_UID}, gid=${BUILD_GID}"
+if [[ -d "./${OUTPUT_DIR}" ]]; then
+    echo "removing: '${OUTPUT_DIR}'"
+    rm -r ./${OUTPUT_DIR}
+fi
+if [[ -f "dist/owntone-web-${OWNTONE_VERSION}.zip" ]]; then
+    rm -v dist/owntone-web-${OWNTONE_VERSION}.zip
+fi  
+mkdir -pv $CACHE_DIR $NODE_MODULES_DIR $OUTPUT_DIR
 
+echo
+echo "Directories mounted to the npm container to build owntone-web (working around the container expecting to run as uid=1000"
+echo "CACHE_DIR: ${CACHE_DIR}"
+echo "NODE_MODULES_DIR: ${NODE_MODULES_DIR}"
 
-       # -v ${NODE_MODULES_DIR}:/owntone-server/web-src/node_modules \
+echo
+echo "Directory mounted to write the build output to:"
+echo "OUTPUT_DIR: ${OUTPUT_DIR}"
 
-# re-define the wsUrl variable
-#
-
-
-# env vars that dont work
-# NODE_PATH
-# NODE_MODULES
-#
-# best way seems to be to bind mount /owntone-server/web-src/node_modules with -v
+echo
+echo "Running npm container as uid=${BUILD_UID}, gid=${BUILD_GID}"
+docker pull node:latest
 docker run \
        --rm \
        -w /owntone-server/web-src \
        -e "HOME=/home/node" \
-       -v $(pwd)/owntone-server/web-src:/owntone-server/web-src \
-       -v $(pwd)/builder:/builder \
-       -v ${OUTPUT_DIR}:/dist/htdocs \
+       -v ./owntone-server/web-src:/owntone-server/web-src \
+       -v ./${OUTPUT_DIR}:/${OUTPUT_DIR} \
        -v ${CACHE_DIR}:/home/node/.npm \
        -v ${NODE_MODULES_DIR}:/owntone-server/web-src/node_modules \
+       -e FORCE_COLOR=1 \
        -e NPM_CONFIG_PREFIX=/home/node/.npm \
        -e NODE_PATH=/home/node/.npm/node_modules \
        -e NODE_MODULES=/home/node/.npm/node_modules \
        -e NODE_INSTALL_PATH=/home/node/.npm/node_modules \
+       -e OUTPUT_DIR=${OUTPUT_DIR} \
        --user "${BUILD_UID}:${BUILD_GID}" \
        node:latest \
        bash -c "
-        /builder/build-web-src.sh \
-        && hostname"
+        set -ex && \
+            npm ci && \
+            npm run build -- --minify=false --outDir=/${OUTPUT_DIR} --emptyOutDir
+        "
 
-git -C $(pwd)/owntone-server checkout web-src/src/App.vue
-git -C $(pwd)/owntone-server status
+if [[ "${OWNTONE_WEB_WS_URL}" != "false" ]]; then
+    echo "Checking out 'App.vue' to restore the file"
+    git -C owntone-server/ checkout -- web-src/src/App.vue
+fi
+if [[ "${OWNTONE_WEB_DARK_READER}" == "true" ]]; then
+    echo "Cleaning up 'dark-reader.css'"
+    find owntone-server/web-src/ -name "dark-reader.css" -print -delete
+fi
+
+( 
+    pushd target/
+    echo "creating zip file from $OUTPUT_DIR"
+    zip -r ../dist/owntone-web-${OWNTONE_VERSION}.zip htdocs/
+)
+
+ls --color=always -1 dist/
+#git -C $(pwd)/owntone-server checkout web-src/src/App.vue
+#git -C $(pwd)/owntone-server status
