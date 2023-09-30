@@ -16,7 +16,7 @@ else
     echo "skipped: web-change-ws-url.sh"
 fi
 
-if [[ "${OWNTONE_WEB_DARK_READER}" == "true" ]]; then
+if [[ "${OWNTONE_WEB_DARK_READER}" != "false" ]]; then
     echo "web-add-dark-reader.sh"
     build/web-add-dark-reader.sh
 else    
@@ -64,6 +64,7 @@ docker run \
        -v ./${OUTPUT_DIR}:/${OUTPUT_DIR} \
        -v ${CACHE_DIR}:/home/node/.npm \
        -v ${NODE_MODULES_DIR}:/owntone-server/web-src/node_modules \
+       -e FORCE_COLOR=1 \
        -e NPM_CONFIG_PREFIX=/home/node/.npm \
        -e NODE_PATH=/home/node/.npm/node_modules \
        -e NODE_MODULES=/home/node/.npm/node_modules \
@@ -81,7 +82,7 @@ if [[ "${OWNTONE_WEB_WS_URL}" != "false" ]]; then
     echo "Checking out 'App.vue' to restore the file"
     git -C owntone-server/ checkout -- web-src/src/App.vue
 fi
-if [[ "${OWNTONE_WEB_DARK_READER}" == "true" ]]; then
+if [[ "${OWNTONE_WEB_DARK_READER}" != "false" ]]; then
     echo "Cleaning up 'dark-reader.css'"
     find owntone-server/web-src/ -name "dark-reader.css" -print -delete
 fi
