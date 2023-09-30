@@ -24,39 +24,44 @@ pipeline {
     }
     stages {
         stage('checkout') {
-            steps { 
+            steps {
                 // sh ".jenkins/init-git.sh"
 
                 script {
                     String OWNTONE_main_branch = "master"
                     String repo_url = params.use_github ? "https://github.com/owntone" : "https://git.sudo.is/mirrors"
-                
+
                     dir('owntone-server') {
                         git(url: repo_url + "/owntone-server", branch: OWNTONE_main_branch)
                         env.OWNTONE_VERSION = sh(script: "git describe --tags --abbrev=0", returnStdout: true).trim()
                         //sh "git config --worktree advice.detachedHead false"
                         sh "git checkout ${env.OWNTONE_VERSION}"
 
-                        if (params.rebase_filescans) { 
+                        if (params.rebase_filescans) {
                             sh "build/git-rebase-filescans.sh"
                         }
                     }
-                    
+
                     currentBuild.displayName += " - ${env.OWNTONE_VERSION}"
                     currentBuild.description = "OwnTone v${env.OWNTONE_VERSION}"
                     writeFile(file: "dist/owntone_version.txt", text: env.OWNTONE_VERSION)
-                    sh "ls --color=always -l" 
+                    sh "ls --color=always -l"
                 }
                 sh "env | grep OWNTONE"
             }
-        }   
-    
-        stage('build web') {
+        }
+
+        stage('build owntone-web') {
             when {
                 expression { params.build_web == true }
             }
             steps {
-                sh "build/build-web.sh"
+                sh "build/build-owntone-web.sh"
+            }
+        }
+        stage('build owntone-server') {
+            steps {
+                sh "build/build-owntone-server.sh"
             }
         }
     }
@@ -67,5 +72,5 @@ pipeline {
         cleanup {
             cleanWs(deleteDirs: true, disableDeferredWipeout: true, notFailBuild: true)
         }
-   } 
+   }
 }

@@ -8,13 +8,13 @@ usage() {
     echo "  --use-github            use the upstream https://github.com/owntone/owntone-server"
     echo "                          repo (default: false, use"
     echo "                          https://git.sudo.is/mirrors/owntone-server)"
-    echo "  --rebase-filescans      build with support for partial library scans. Rebases branch" 
-    echo "                          for owntone-server#1179 from" 
+    echo "  --rebase-filescans      build with support for partial library scans. Rebases branch"
+    echo "                          for owntone-server#1179 from"
     echo "                          github:whatdoineed2do/forked-daapd (default: false)"
-    echo "  --no-build-web          don't build the OwnTone Web UI, use the build in" 
+    echo "  --no-build-web          don't build the OwnTone Web UI, use the build in"
     echo "                          owntone-server/htdocs/"
     echo "  --no-web-dark-reader    don't add dark-reader.css for dark theme (work in progress)"
-    echo "  --no-web-ws-url         don't change the url that the OwnTone Web" 
+    echo "  --no-web-ws-url         don't change the url that the OwnTone Web"
     echo "                          UI uses for the websocket"
     exit 2
 }
@@ -72,15 +72,19 @@ echo
 if [[ "${OWNTONE_REBASE_FILESCANS}" == "true" ]]; then
     echo "git-rebase-filescans.sh"
     build/git-rebase-filesans.sh
-    echo 
 else
     echo "skipped: git-rebase-filescans.sh"
-fi  
+fi
+echo
 
 if [[ "${OWNTONE_BUILD_WEB}" != "false" ]]; then
-    echo "build-web.sh"
-    build/build-web.sh
-    echo
+    echo "build-owntone-web.sh"
+    build/build-owntone-web.sh
 else
     echo "skipped: build-web.sh"
-fi  
+fi
+echo
+
+echo "build-owntone-server.sh"
+build/build-owntone-server.sh
+

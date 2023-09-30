@@ -2,7 +2,7 @@
 #
 # Run npm in a docker container to build owntone-web
 #
-# This script only builds the webinterface, it doesnt patch or make any changes to the 
+# This script only builds the webinterface, it doesnt patch or make any changes to the
 # code. So that should happen before this script is called.
 
 #set -x
@@ -20,9 +20,9 @@ fi
 if [[ "${OWNTONE_WEB_DARK_READER}" != "false" ]]; then
     echo "web-add-dark-reader.sh"
     build/web-add-dark-reader.sh
-else    
+else
     echo "skipped: web-add-dark-reader.sh"
-fi  
+fi
 
 
 # the /home/node dir is explicitly owned by uid 1000, and npm wants to write to $HOME/.npm (some logs)
@@ -35,13 +35,13 @@ OUTPUT_DIR=target/htdocs
 BUILD_UID=$(id -u)
 BUILD_GID=$(id -g)
 
+echo "Cleaning up..."
 if [[ -d "./${OUTPUT_DIR}" ]]; then
     echo "removing: '${OUTPUT_DIR}'"
     rm -r ./${OUTPUT_DIR}
 fi
-if [[ -f "dist/owntone-web-${OWNTONE_VERSION}.zip" ]]; then
-    rm -v dist/owntone-web-${OWNTONE_VERSION}.zip
-fi  
+find dist/ -name "owntone-web_${OWNTONE_VERSION}.zip" -print -delete
+
 mkdir -pv $CACHE_DIR $NODE_MODULES_DIR $OUTPUT_DIR
 
 echo
@@ -98,11 +98,11 @@ if [[ "${OWNTONE_WEB_DARK_READER}" != "false" ]]; then
     find owntone-server/web-src/ -name "dark-reader.css" -print -delete
 fi
 
-( 
+(
     pushd target/
     echo
     echo "creating zip file from $OUTPUT_DIR"
-    zip -r ../dist/owntone-web-${OWNTONE_VERSION}.zip htdocs/
+    zip -r ../dist/owntone-web_${OWNTONE_VERSION}.zip htdocs/
 )
 
 echo
