@@ -57,13 +57,13 @@ echo "Running npm container as uid=${BUILD_UID}, gid=${BUILD_GID}"
 docker pull node:latest
 docker run \
        --rm \
+       -t \
        -w /owntone-server/web-src \
        -e "HOME=/home/node" \
        -v ./owntone-server/web-src:/owntone-server/web-src \
        -v ./${OUTPUT_DIR}:/${OUTPUT_DIR} \
        -v ${CACHE_DIR}:/home/node/.npm \
        -v ${NODE_MODULES_DIR}:/owntone-server/web-src/node_modules \
-       -e FORCE_COLOR=1 \
        -e NPM_CONFIG_PREFIX=/home/node/.npm \
        -e NODE_PATH=/home/node/.npm/node_modules \
        -e NODE_MODULES=/home/node/.npm/node_modules \
