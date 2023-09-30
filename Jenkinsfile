@@ -9,11 +9,12 @@ pipeline {
     }
     options {
         timestamps()
-        ansiColor("xterm")
+        ansiColor("xterm-256color")
         disableConcurrentBuilds()
         buildDiscarder(logRotator(daysToKeepStr: '30', numToKeepStr: '10', artifactNumToKeepStr: '1'))
     }
     environment {
+        GIT_CONFIG_PARAMETERS = "'color.ui=always' 'advice.detachedHead=false'"
         OWNTONE_USE_GITHUB = params.use_github.toString()
         OWNTONE_REBASE_FILESCANS = params.rebase_filescans.toString()
         OWNTONE_BUILD_WEB = params.build_web.toString()
@@ -33,7 +34,7 @@ pipeline {
                     dir('owntone-server') {
                         git(url: repo_url + "/owntone-server", branch: OWNTONE_main_branch)
                         env.OWNTONE_VERSION = sh(script: "git describe --tags --abbrev=0", returnStdout: true).trim()
-                        sh "git config --worktree advice.detachedHead false"
+                        //sh "git config --worktree advice.detachedHead false"
                         sh "git checkout ${env.OWNTONE_VERSION}"
 
                         if (params.rebase_filescans) { 

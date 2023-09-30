@@ -54,10 +54,15 @@ echo "OUTPUT_DIR: ${OUTPUT_DIR}"
 
 echo
 echo "Running npm container as uid=${BUILD_UID}, gid=${BUILD_GID}"
+
+if [[ -t 1 ]]; then
+    # run docker container with -t if we are in a TTY
+    DOCKER_OPT_TTY="-t"
+fi
 docker pull node:latest
 docker run \
        --rm \
-       -t \
+       $DOCKER_OPT_TTY \
        -w /owntone-server/web-src \
        -e "HOME=/home/node" \
        -v ./owntone-server/web-src:/owntone-server/web-src \
