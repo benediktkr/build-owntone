@@ -17,13 +17,14 @@ if [[ ! -d "owntone-server/.git" ]]; then
     git clone -q $GIT_URL/owntone-server
     echo "done"
 else
+    git -C owntone-server/ checkout .
+    git -C owntone-server/ clean -fd
+    
     CURRENT_BRANCH=$(git -C owntone-server/ rev-parse --abbrev-ref HEAD)
     if [[ "$CURRENT_BRANCH" != "${OWNTONE_MAIN_BRANCH}" ]]; then
        git -C owntone-server/ checkout $OWNTONE_MAIN_BRANCH
     fi
 
-    git -C owntone-server/ checkout .
-    git -C owntone-server/ clean -fd
     git -C owntone-server/ remote rm origin || true
     git -C owntone-server/ remote add origin $GIT_URL/owntone-server
     git -C owntone-server/ pull origin $OWNTONE_MAIN_BRANCH

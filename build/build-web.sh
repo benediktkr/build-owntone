@@ -9,6 +9,7 @@
 set -e
 alias ls='ls --color=always'
 
+echo
 if [[ "${OWNTONE_WEB_WS_URL}" != "false" ]]; then
     echo "web-change-ws-url.sh"
     build/web-change-ws-url.sh
@@ -54,11 +55,13 @@ echo "OUTPUT_DIR: ${OUTPUT_DIR}"
 
 echo
 echo "Running npm container as uid=${BUILD_UID}, gid=${BUILD_GID}"
+echo
 
 if [[ -t 1 ]]; then
     # run docker container with -t if we are in a TTY
     DOCKER_OPT_TTY="-t"
 fi
+
 docker pull node:latest
 docker run \
        --rm \
@@ -83,21 +86,26 @@ docker run \
             npm run build -- --minify=false --outDir=/${OUTPUT_DIR} --emptyOutDir
         "
 
+
 if [[ "${OWNTONE_WEB_WS_URL}" != "false" ]]; then
+    echo
     echo "Checking out 'App.vue' to restore the file"
     git -C owntone-server/ checkout -- web-src/src/App.vue
 fi
 if [[ "${OWNTONE_WEB_DARK_READER}" != "false" ]]; then
+    echo
     echo "Cleaning up 'dark-reader.css'"
     find owntone-server/web-src/ -name "dark-reader.css" -print -delete
 fi
 
 ( 
     pushd target/
+    echo
     echo "creating zip file from $OUTPUT_DIR"
     zip -r ../dist/owntone-web-${OWNTONE_VERSION}.zip htdocs/
 )
 
+echo
 ls --color=always -1 dist/
 #git -C $(pwd)/owntone-server checkout web-src/src/App.vue
 #git -C $(pwd)/owntone-server status

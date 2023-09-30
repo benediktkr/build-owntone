@@ -38,9 +38,7 @@ pipeline {
                         sh "git checkout ${env.OWNTONE_VERSION}"
 
                         if (params.rebase_filescans) { 
-                            sh "git remote add whatdoineed2do https://github.com/whatdoineed2do/forked-daapd"
-                            sh "git fetch whatdoineed2do file-scan-dir-path"
-                            sh "git rebase file-scan-dir-path"
+                            sh "build/git-rebase-filescans.sh"
                         }
                     }
                     
