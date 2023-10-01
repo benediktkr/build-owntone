@@ -54,6 +54,9 @@ for arg in "$@"; do
             OWNTONE_GID=$1
             shift
             ;;
+        *)
+            echo "unkonwn arg: '$1'"
+            exit 1
         esac
 done
 

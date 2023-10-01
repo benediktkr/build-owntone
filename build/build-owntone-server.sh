@@ -9,12 +9,17 @@
 # Produces the .deb file, and a docker container to run the build
 
 set -e
+shopt -s expand_aliases
+
+alias ls='ls --color=always'
+alias grep='grep --color=always'
 
 if [[ -z "${OWNTONE_VERSION}" ]]; then
-    echo "OWNTONE_VERSION is not set."
+    echo "OWNTONE_VERSION need to be set!"
     exit 1
 fi
 
+echo
 echo "Cleaning up..."
 find dist/ -name "owntone-server_${OWNTONE_VERSION}_*.tar.gz" -print -delete
 find dist/ -name "owntone-server_${OWNTONE_VERSION}_*.deb" -print -delete
@@ -36,38 +41,54 @@ if [[ -z "${OWNTONE_GID}" ]]; then
     OWNTONE_GID="$(id -g)"
 fi
 
-
 if [[ -t 1 ]]; then
     # run docker container with -t if we are in a TTY
     DOCKER_OPT_TTY="-t"
 fi
 
 
-# --target builder \
+echo
+echo "Building container with uid=${OWNTONE_UID}, gid=${OWNTONE_GID}"
+
+(
+    set -x
+
+    ls -1 dist/
+
+    docker build \
+        --pull \
+        --target builder \
+        --build-arg "OWNTONE_UID=$OWNTONE_UID" \
+        --build-arg "OWNTONE_GID=$OWNTONE_GID" \
+        --build-arg "OWNTONE_VERSION=$OWNTONE_VERSION" \
+        -t owntone-server-builder:${OWNTONE_VERSION} .
+
+    docker run \
+        --rm \
+        $DOCKER_OPT_TTY \
+        --name owntone-build \
+        -u $(id -u) \
+        -v $(pwd)/dist/:/mnt/dist/ \
+        owntone-server-builder:${OWNTONE_VERSION} \
+            cp -r /usr/local/src/dist/. /mnt/dist/
+)
+
+echo
+ls -1 dist/
+ls -lah dist/*.deb
+dpkg-deb -c dist/owntone-server_${OWNTONE_VERSION}_*.deb
+echo
+
+(
+    set -x
+    docker build \
+        --pull \
+        --build-arg "OWNTONE_UID=$OWNTONE_UID" \
+        --build-arg "OWNTONE_GID=$OWNTONE_GID" \
+        --build-arg "OWNTONE_VERSION=$OWNTONE_VERSION" \
+        -t owntone-server:${OWNTONE_VERSION} .
 
 
-set -x
-docker build \
-    --pull \
-    --target builder \
-    --build-arg "OWNTONE_UID=$OWNTONE_UID" \
-    --build-arg "OWNTONE_GID=$OWNTONE_GID" \
-    --build-arg "OWNTONE_VERSION=$OWNTONE_VERSION" \
-    -t owntone:${OWNTONE_VERSION}-builder .
+)
 
-docker run \
-    --rm \
-    $DOCKER_OPT_TTY \
-    --name owntone-build \
-    -u $(id -u) \
-    -v $(pwd)/dist/:/mnt/dist/ \
-    owntone:${OWNTONE_VERSION}-builder \
-        cp -r /usr/local/src/dist/. /mnt/dist/
-
-docker build \
-    --pull \
-    --build-arg "OWNTONE_UID=$OWNTONE_UID" \
-    --build-arg "OWNTONE_GID=$OWNTONE_GID" \
-    --build-arg "OWNTONE_VERSION=$OWNTONE_VERSION" \
-    -t owntone:${OWNTONE_VERSION} .
 

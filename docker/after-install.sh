@@ -1,3 +1,4 @@
 #!/bin/bash
 
-echo "after install"
+echo "owntone-server: after install"
+

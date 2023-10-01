@@ -1,3 +1,4 @@
 owntone-server/
 dist/*
 target/*
+test.conf

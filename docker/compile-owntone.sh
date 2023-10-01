@@ -6,9 +6,17 @@ autoreconf -i
 
 # --enable-static  --disable-shared
 # -enable-prefairplay2
-./configure --with-pulseaudio --with-avahi \
-  --enable-chromecast --enable-lastfm \
-  --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
+
+# --with-avahi
+# --without-avahi
+
+./configure \
+    --with-pulseaudio \
+    --enable-chromecast \
+    --enable-lastfm \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var
 
 make
 

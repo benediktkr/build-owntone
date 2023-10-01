@@ -5,9 +5,11 @@
 # This script only builds the webinterface, it doesnt patch or make any changes to the
 # code. So that should happen before this script is called.
 
-#set -x
 set -e
+shopt -s expand_aliases
+
 alias ls='ls --color=always'
+alias grep='grep --color=always'
 
 echo
 if [[ "${OWNTONE_WEB_WS_URL}" != "false" ]]; then
@@ -62,40 +64,47 @@ if [[ -t 1 ]]; then
     DOCKER_OPT_TTY="-t"
 fi
 
-docker pull node:latest
-docker run \
-       --rm \
-       $DOCKER_OPT_TTY \
-       -w /owntone-server/web-src \
-       -e "HOME=/home/node" \
-       -v ./owntone-server/web-src:/owntone-server/web-src \
-       -v ./${OUTPUT_DIR}:/${OUTPUT_DIR} \
-       -v ${CACHE_DIR}:/home/node/.npm \
-       -v ${NODE_MODULES_DIR}:/owntone-server/web-src/node_modules \
-       -e FORCE_COLOR=1 \
-       -e NPM_CONFIG_PREFIX=/home/node/.npm \
-       -e NODE_PATH=/home/node/.npm/node_modules \
-       -e NODE_MODULES=/home/node/.npm/node_modules \
-       -e NODE_INSTALL_PATH=/home/node/.npm/node_modules \
-       -e OUTPUT_DIR=${OUTPUT_DIR} \
-       --user "${BUILD_UID}:${BUILD_GID}" \
-       node:latest \
-       bash -c "
-        set -ex && \
-            npm ci && \
-            npm run build -- --minify=false --outDir=/${OUTPUT_DIR} --emptyOutDir
-        "
+(
+    set -x
+    ls -1 dist/
+    docker pull node:latest
+    docker run \
+           --rm \
+           $DOCKER_OPT_TTY \
+           -w /owntone-server/web-src \
+           -e "HOME=/home/node" \
+           -v ./owntone-server/web-src:/owntone-server/web-src \
+           -v ./${OUTPUT_DIR}:/${OUTPUT_DIR} \
+           -v ${CACHE_DIR}:/home/node/.npm \
+           -v ${NODE_MODULES_DIR}:/owntone-server/web-src/node_modules \
+           -e FORCE_COLOR=1 \
+           -e NPM_CONFIG_PREFIX=/home/node/.npm \
+           -e NODE_PATH=/home/node/.npm/node_modules \
+           -e NODE_MODULES=/home/node/.npm/node_modules \
+           -e NODE_INSTALL_PATH=/home/node/.npm/node_modules \
+           -e OUTPUT_DIR=${OUTPUT_DIR} \
+           --user "${BUILD_UID}:${BUILD_GID}" \
+           node:latest \
+           bash -c "
+            set -ex && \
+                npm ci && \
+                npm run build -- --minify=false --outDir=/${OUTPUT_DIR} --emptyOutDir
+            "
 
+    ls -1 dist/
+)
 
+echo
 if [[ "${OWNTONE_WEB_WS_URL}" != "false" ]]; then
-    echo
     echo "Checking out 'App.vue' to restore the file"
     git -C owntone-server/ checkout -- web-src/src/App.vue
 fi
 if [[ "${OWNTONE_WEB_DARK_READER}" != "false" ]]; then
-    echo
     echo "Cleaning up 'dark-reader.css'"
     find owntone-server/web-src/ -name "dark-reader.css" -print -delete
+fi
+if [[ "${OWNTONE_WEB_WS_URL}" != "false" || "${GIT_WEB_DARK_READER}" != "false" ]]; then
+    git -C owntone-server/ status
 fi
 
 (
@@ -106,6 +115,4 @@ fi
 )
 
 echo
-ls --color=always -1 dist/
-#git -C $(pwd)/owntone-server checkout web-src/src/App.vue
-#git -C $(pwd)/owntone-server status
+ls -1 dist/
