@@ -68,6 +68,7 @@ pipeline {
         stage('build owntone-server') {
             steps {
                 sh "build/build-owntone-server.sh"
+                env.OWNTONE_SERVER_DEB = sh(script: "source target/owntone-build.env && echo $OWNTONE_SERVER_DEB", returnStdout: true)
             }
         }
         stage('publish') {
@@ -84,6 +85,9 @@ pipeline {
         }
     }
     post {
+        always {
+            sh "env | grep OWNTONE"
+        }
         success {
             archiveArtifacts(artifacts: "dist/*.tar.gz,dist/*.deb,dist/*.zip,dist/owntone_version.txt,dist/owntone-server_*.filelist.txt", fingerprint: true)
             sh "cp -v dist/owntone-server_${OWNTONE_VERSION}_*.deb ${env.JENKINS_HOME}/artifacts"

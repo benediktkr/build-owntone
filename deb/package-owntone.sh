@@ -73,7 +73,7 @@ fpm \
     -a ${ARCH} \
     -s dir target/=/
 
-echo "OWNTONE_SERVER_DEB=${NAME}_${VERSION}_${ARCH}.deb" >> ./owntone-build.env
+echo "OWNTONE_SERVER_DEB=${NAME}_${VERSION}_${ARCH}.deb ; export OWNTONE_SERVER_DEB" >> ./owntone-build.env
 
 dpkg -I dist/${NAME}_${VERSION}_${ARCH}.deb
 dpkg -c dist/${NAME}_${VERSION}_${ARCH}.deb > dist/${NAME}_${VERSION}_${ARCH}.filelist.txt

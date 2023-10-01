@@ -135,7 +135,7 @@ fi
 #
 echo_stage "build owntone-server"
 build/build-owntone-server.sh
-
+source target/owntone-build.env
 
 #
 # Jenkinsfile stage: 'publish'
