@@ -65,6 +65,7 @@ COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY etc/owntone.conf /etc/owntone.conf
 
 USER owntone
+WORKDIR /home/owntone
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["-f"]
 
