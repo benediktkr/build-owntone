@@ -25,7 +25,7 @@ fi
 
 GITEA_URL=git.sudo.is
 # fail if auth is unsuccessful2
-curl -fsiX GET https://${GITEA_SECRET}@${GITEA_URL}/api/v1/nodeinfo || error "curl to gitea failed!"
+curl -fsiX GET -o /dev/null https://${GITEA_SECRET}@${GITEA_URL}/api/v1/nodeinfo || error "curl to gitea failed!"
 
 echo_light_green "      [?] checking if there are published Debian builds for owntone-server $OWNTONE_VERSION"
 
@@ -55,6 +55,18 @@ if [[ "${GITEA_PUBLISH}" == "true" || "${OWNTONE_FORCE_PUBLISH}" == "true" ]]; t
         set +e
     fi
 
+    set -e
+    echo_green "      [^] Pushing docker container"
+    echo -n "          "
+    docker tag owntone-server:${OWNTONE_VERSION} ${GITEA_URL}/${GITEA_USER}/owntone-server:latest
+    docker push -q ${GITEA_URL}/${GITEA_USER}/owntone-server:latest
+
+    echo_green "      [^] Pushing docker container"
+    echo -n "          "
+    docker tag owntone-server:${OWNTONE_VERSION} ${GITEA_URL}/${GITEA_USER}/owntone-server:${OWNTONE_VERSION}
+    docker push -q ${GITEA_URL}/${GITEA_USER}/owntone-server:${OWNTONE_VERSION}
+
+
     if [[ "${OWNTONE_BUILD_WEB}" != "false" ]]; then
         WEB_ZIP_FILE="owntone-web_${OWNTONE_VERSION}.zip"
         echo_green "      [^] Uploading: $WEB_ZIP_FILE"
@@ -69,16 +81,6 @@ if [[ "${GITEA_PUBLISH}" == "true" || "${OWNTONE_FORCE_PUBLISH}" == "true" ]]; t
     echo $upload_deb
 
 
-    set -e
-    echo_green "      [^] Pushing docker container"
-    echo -n "          "
-    docker tag owntone-server:${OWNTONE_VERSION} ${GITEA_URL}/${GITEA_USER}/owntone-server:latest
-    docker push -q ${GITEA_URL}/${GITEA_USER}/owntone-server:latest
-
-    echo_green "      [^] Pushing docker container"
-    echo -n "          "
-    docker tag owntone-server:${OWNTONE_VERSION} ${GITEA_URL}/${GITEA_USER}/owntone-server:${OWNTONE_VERSION}
-    docker push -q ${GITEA_URL}/${GITEA_USER}/owntone-server:${OWNTONE_VERSION}
 
 
 
