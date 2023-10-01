@@ -23,6 +23,8 @@ fi
 echo "Cleaning up..."
 find dist/ -name "owntone-server_${OWNTONE_VERSION}_*.tar.gz" -print -delete
 find dist/ -name "owntone-server_${OWNTONE_VERSION}_*.deb" -print -delete
+find dist/ -name "owntone-server_${OWNTONE_VERSION}_*.txt" -print -delete
+find dist/ -name ".arch.txt" -print -delete
 if [[ -d "target/owntone-server" ]]; then
     echo "removing: target/owntone-server"
     rm -r target/owntone-server
@@ -47,7 +49,8 @@ echo
 echo "Building container with uid=${OWNTONE_UID}, gid=${OWNTONE_GID}"
 
 (
-    set -xe
+    set -x
+    set -e
 
     ls -1 dist/
 
@@ -79,7 +82,9 @@ ls -lah dist/*.deb
 echo
 
 (
-    set -xe
+    set -x
+    set -e
+
     docker build \
         --pull \
         --target final \

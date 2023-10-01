@@ -65,7 +65,8 @@ if [[ -t 1 ]]; then
 fi
 
 (
-    set -ex
+    set -e
+    set -x
     ls -1 dist/
     docker pull node:latest
     docker run \

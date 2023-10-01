@@ -6,6 +6,7 @@ pipeline {
         booleanParam(name: "build_web", defaultValue: true, description: "build web ui from source with modified websocket url")
         booleanParam(name: "web_dark_reader", defaultValue: true, description: "add css from DarkReader (work in progress)")
         booleanParam(name: "web_ws_url", defaultValue: true, description: "change wsUrl in the frontend so it access the websocket over https on /ws (on the same port) -- requires using a reverse proxy")
+        booleanParam(name: "publish", defaultValue: true, description: "publish builds to gitea")
     }
     options {
         timestamps()
@@ -20,6 +21,7 @@ pipeline {
         OWNTONE_BUILD_WEB = params.build_web.toString()
         OWNTONE_WEB_DARK_READER = params.web_dark_reader.toString()
         OWNTONE_WEB_WS_URL = params.web_ws_url.toString()
+        OWNTONE_PUBLISH = params.publish.toString()
         OWNTONE_MAIN_BRANCH = "master"
         FORCE_COLOR="1"
     }
@@ -62,6 +64,19 @@ pipeline {
         stage('build owntone-server') {
             steps {
                 sh "build/build-owntone-server.sh"
+            }
+        }
+        stage('publish') {
+            when {
+                expression { params.publish == "true" }
+            }
+            steps {
+                script {
+                    sh "env"
+                    withCredentials([string(credentialsId: 'gitea-user-${env.GITEA_USER}-full', variable: 'SECRET')]) {
+                        sh "build/publish.sh"
+                    }
+                }
             }
         }
     }
