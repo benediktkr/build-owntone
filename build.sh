@@ -140,7 +140,7 @@ build/build-owntone-server.sh
 #
 # Jenkinsfile stage: 'publish'
 #
-if [[ "${OWNTONE_PUBLISH}" != "false" || "${OWNTONE_FORCE_PUBLISH}" == "true" ]]; then
+if [[ "${OWNTONE_PUBLISH}" == "true" || "${OWNTONE_FORCE_PUBLISH}" == "true" ]]; then
     echo_stage "publish"
     build/publish.sh
 else
