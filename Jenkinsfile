@@ -68,7 +68,9 @@ pipeline {
         stage('build owntone-server') {
             steps {
                 sh "build/build-owntone-server.sh"
-                env.OWNTONE_SERVER_DEB = sh(script: "source target/owntone-build.env && echo $OWNTONE_SERVER_DEB", returnStdout: true)
+                script {
+                    env.OWNTONE_SERVER_DEB = sh(script: "build/echo-owntone-server-deb.sh", returnStdout: true).trim()
+                }
             }
         }
         stage('publish') {
