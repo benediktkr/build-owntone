@@ -67,7 +67,7 @@ pipeline {
     }
     post {
         success {
-            archiveArtifacts(artifacts: "dist/*.tar.gz,dist/*.deb,dist/*.zip,dist/owntone_version.txt", fingerprint: true)
+            archiveArtifacts(artifacts: "dist/*.tar.gz,dist/*.deb,dist/*.zip,dist/owntone_version.txt,dist/owntone-server_*.filelist.txt", fingerprint: true)
         }
         cleanup {
             cleanWs(deleteDirs: true, disableDeferredWipeout: true, notFailBuild: true)

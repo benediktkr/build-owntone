@@ -70,7 +70,6 @@ fpm \
     -s dir target/=/
 
 
-dpkg -I dist/owntone-server_${VERSION}_${ARCH}.deb
-dpkg -c dist/owntone-server_${OWNTONE_VERSION}_*.deb
-
-
+dpkg -I dist/${NAME}_${VERSION}_${ARCH}.deb
+dpkg -c dist/${NAME}_${VERSION}_${ARCH}.deb > dist/${NAME}_${VERSION}_${ARCH}.filelist.txt
+tree target/ > dist/${NAME}_${VERSION}_${ARCH}.filetree.txt
