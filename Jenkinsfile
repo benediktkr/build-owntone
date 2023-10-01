@@ -73,7 +73,7 @@ pipeline {
             steps {
                 script {
                     env.GITEA_USER = sh(script: "echo $GIT_URL | cut -d'/' -f4", returnStdout: true).trim()
-                    withCredentials([string(credentialsId: 'gitea-user-${env.GITEA_USER}-full', variable: 'SECRET')]) {
+                    withCredentials([string(credentialsId: "gitea-user-${env.GITEA_USER}-full", variable: 'SECRET')]) {
                         sh "build/publish.sh"
                     }
                 }
