@@ -82,6 +82,7 @@ echo
     set -xe
     docker build \
         --pull \
+        --target final \
         --build-arg "OWNTONE_UID=$OWNTONE_UID" \
         --build-arg "OWNTONE_GID=$OWNTONE_GID" \
         --build-arg "OWNTONE_VERSION=$OWNTONE_VERSION" \

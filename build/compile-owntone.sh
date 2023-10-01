@@ -1,24 +1,37 @@
 #!/bin/bash
+#
+# Compile the OwnTone source
+#
+# Runs on container build time
 
 set -e
+set -x
 
 autoreconf -i
 
-# --enable-static  --disable-shared
-# -enable-prefairplay2
-
 # --with-avahi
 # --without-avahi
+#
+# None of these work, the Makefile probably needs to be edited (if its possible at all)
+# --enable-static
+# --disable-shared
+# ./configure LDFLAGS=-static
+#
 
 ./configure \
     --with-pulseaudio \
     --enable-chromecast \
     --enable-lastfm \
+    --enable-preferairplay2 \
     --prefix=/usr \
     --sysconfdir=/etc \
     --localstatedir=/var
 
 make
 
-set -x
+ldd src/owntone
+
 DESTDIR=$(pwd)/../target make install
+
+
+
