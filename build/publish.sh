@@ -19,53 +19,55 @@ fi
 
 GITEA_URL=git.sudo.is
 
-gitea_check() {
-    # arch doesnt factor in
-    #CURL_OUT_OPT="-o /dev/null"
-    NAME=$1
-    PKG_REGISRY=$2
+echo_light_green "      [?] checking if there are published Debian builds for owntone-server $OWNTONE_VERSION"
 
-    echo_light_green "checking if there are published $PKG_REGISTRY builds for $NAME $OWNTONE_VERSION"
+# ARCH doesnt factor in for checking
+CURL_OUT_OPT="-o /dev/null"
 
-    GITEA_API_URL_PKG="https://${GITEA_SECRET}@${GITEA_URL}/api/v1/packages/${GITEA_USERNAME}/${PKG_REGISTRY}/${NAME}/${VERSION}"
-    curl -fsiX GET $CURL_OUT_OPT $GITEA_API_URL_PKG
-}
 
-if ! gitea_check "owntone-server" "debian"; then
-    echo_green "owntone-server ${OWNTONE_VERSION}: new version, no published .deb packages"
-    OWNTONE_PUBLISH_NEW="true"
+set +e
+curl -fsiX GET $CURL_OUT_OPT https://${GITEA_SECRET}@${GITEA_URL}/api/v1/packages/${GITEA_USER}/debian/owntone-server/${OWNTONE_VERSION}
+retval=$?
+set -e
+if [[ "${retval}" != "0" ]]; then
+    echo_light_green "      [O] owntone-server ${OWNTONE_VERSION}: new version, no published .deb packages"
+    GITEA_PUBLISH="true"
+
 else
-    echo_yellow "owntone-server ${OWNTONE_VERSION}: publshed .deb packages found"
-    OWNTONE_PUBLISH_NEW="false"
+    echo_orange "      [o] owntone-server ${OWNTONE_VERSION}: published .deb packages found"
+    GITEA_PUBLISH="false"
 fi
 
-if [[ "${OWNTONE_PUBLISH_NEW}" == "true" ]]; then
+if [[ "${GITEA_PUBLISH}" == "true" || "${OWNTONE_FORCE_PUBLISH}" == "true" ]]; then
+
     # ARCH factors in here
     GITEA_UPLOAD_URL="https://${GITEA_SECRET}@${GITEA_URL}/api/packages/${GITEA_USER}"
-    DEB_FILE="owntone-server_${OWNTONE_VERSION}_${ARCH}.deb"
-    echo_green "  [^] Uploding: $DEB_FILE"
-    curl "${GITEA_UPLOAD_URL}/debian/pool/${ARCH}/main/upload" --upload-file dist/$DEB_FILE
-    echo
 
-    if [[ "${OWNTONE_PUBLISH}" != "false" ]]; then
-        WEB_ZIP_FILE="owntone-web_${OWNTONE_VERSION}.zip"
-        echo_green "  [^] Uploading: $WEB_ZIP_FILE"
-        curl "${GITEA_UPLOAD_URL}/generic/owntone-web/${OWNTONE_VERSION}/owntone-web_${OWNTONE_VERSION}.zip" --upload-file dist/$WEB_ZIP_FILE
-        echo
-    fi
+    [[ "${OWNTONE_FORCE_PUBLISH}" == "true" ]] && echo_orange "      [!] OWNTONE_FORCE_PUBLISH is set"
 
-    echo_green "Publishing docker container with tags 'latest', '${OWNTONE_VERSION}'"
-    docker tag owntone-server:${OWNTONE_VERSION} ${GITEA_URL}/${GITEA_USER}/owntone-server:${OWNTONE_VERSION}
+    echo_green "      [^] Pushing docker container"
+    echo -n "          "
     docker tag owntone-server:${OWNTONE_VERSION} ${GITEA_URL}/${GITEA_USER}/owntone-server:latest
-    docker push ${GITEA_URL}/${GITEA_USER}/owntone-server:${OWNTONE_VERSION}
-    docker push ${GITEA_URL}/${GITEA_USER}/owntone-server:latest
+    docker push -q ${GITEA_URL}/${GITEA_USER}/owntone-server:latest
+
+    echo_green "      [^] Pushing docker container"
+    echo -n "          "
+    docker tag owntone-server:${OWNTONE_VERSION} ${GITEA_URL}/${GITEA_USER}/owntone-server:${OWNTONE_VERSION}
+    docker push -q ${GITEA_URL}/${GITEA_USER}/owntone-server:${OWNTONE_VERSION}
+
+    if [[ "${OWNTONE_BUILD_WEB}" != "false" ]]; then
+        WEB_ZIP_FILE="owntone-web_${OWNTONE_VERSION}.zip"
+        echo_green "      [^] Uploading: $WEB_ZIP_FILE"
+        upload_web_zip=$(curl -s "${GITEA_UPLOAD_URL}/generic/owntone-web/${OWNTONE_VERSION}/owntone-web_${OWNTONE_VERSION}.zip" --upload-file dist/$WEB_ZIP_FILE)
+        echo_n_green "      [ ] done. "
+        echo $upload_web_zip
+    fi
+    DEB_FILE="owntone-server_${OWNTONE_VERSION}_${ARCH}.deb"
+    echo_green "      [^] Uploding: $DEB_FILE..."
+    upload_deb=$(curl -s "${GITEA_UPLOAD_URL}/debian/pool/${ARCH}/main/upload" --upload-file dist/$DEB_FILE)
+    echo_n_green "      [ ] done. "
+    echo $upload_deb
+
+
 
 fi
-
-
-
-
-
-
-
-
