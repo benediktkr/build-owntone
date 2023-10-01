@@ -20,5 +20,5 @@ autoreconf -i
 
 make
 
-mkdir ${DISTDIR}/target
-DESTDIR=${DISTDIR}/target make install
+set -x
+DESTDIR=$(pwd)/../target make install

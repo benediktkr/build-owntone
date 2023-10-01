@@ -32,7 +32,7 @@ fi
 
 CACHE_DIR="$HOME/.cache/npm-docker/builds/owntone/web-src/.npm"
 NODE_MODULES_DIR="$HOME/.cache/npm-docker/builds/owntone/web-src/node_modules"
-OUTPUT_DIR=target/htdocs
+OUTPUT_DIR=target/owntone-web
 
 BUILD_UID=$(id -u)
 BUILD_GID=$(id -g)
@@ -65,28 +65,28 @@ if [[ -t 1 ]]; then
 fi
 
 (
-    set -x
+    set -ex
     ls -1 dist/
     docker pull node:latest
     docker run \
-           --rm \
-           $DOCKER_OPT_TTY \
-           -w /owntone-server/web-src \
-           -e "HOME=/home/node" \
-           -v ./owntone-server/web-src:/owntone-server/web-src \
-           -v ./${OUTPUT_DIR}:/${OUTPUT_DIR} \
-           -v ${CACHE_DIR}:/home/node/.npm \
-           -v ${NODE_MODULES_DIR}:/owntone-server/web-src/node_modules \
-           -e FORCE_COLOR=1 \
-           -e NPM_CONFIG_PREFIX=/home/node/.npm \
-           -e NODE_PATH=/home/node/.npm/node_modules \
-           -e NODE_MODULES=/home/node/.npm/node_modules \
-           -e NODE_INSTALL_PATH=/home/node/.npm/node_modules \
-           -e OUTPUT_DIR=${OUTPUT_DIR} \
-           --user "${BUILD_UID}:${BUILD_GID}" \
-           node:latest \
-           bash -c "
-            set -ex && \
+        --rm \
+        $DOCKER_OPT_TTY \
+        -w /owntone-server/web-src \
+        -e "HOME=/home/node" \
+        -v ./owntone-server/web-src:/owntone-server/web-src \
+        -v ./${OUTPUT_DIR}:/${OUTPUT_DIR} \
+        -v ${CACHE_DIR}:/home/node/.npm \
+        -v ${NODE_MODULES_DIR}:/owntone-server/web-src/node_modules \
+        -e FORCE_COLOR=1 \
+        -e NPM_CONFIG_PREFIX=/home/node/.npm \
+        -e NODE_PATH=/home/node/.npm/node_modules \
+        -e NODE_MODULES=/home/node/.npm/node_modules \
+        -e NODE_INSTALL_PATH=/home/node/.npm/node_modules \
+        -e OUTPUT_DIR=${OUTPUT_DIR} \
+        --user "${BUILD_UID}:${BUILD_GID}" \
+        node:latest \
+            bash -c "
+                set -ex && \
                 npm ci && \
                 npm run build -- --minify=false --outDir=/${OUTPUT_DIR} --emptyOutDir
             "
@@ -108,10 +108,11 @@ if [[ "${OWNTONE_WEB_WS_URL}" != "false" || "${GIT_WEB_DARK_READER}" != "false" 
 fi
 
 (
-    pushd target/
+    set -e
+    pushd $OUTPUT_DIR
     echo
-    echo "creating zip file from $OUTPUT_DIR"
-    zip -r ../dist/owntone-web_${OWNTONE_VERSION}.zip htdocs/
+    echo "creating zip file from '${OUTPUT_DIR}'"
+    zip -r ../../dist/owntone-web_${OWNTONE_VERSION}.zip ./
 )
 
 echo

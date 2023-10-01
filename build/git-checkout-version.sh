@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Disable the warning about what wre about to do
 
 # The GIT_CONFIG_PARAMETERS env var can't _start_ with a space, then

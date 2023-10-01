@@ -1,6 +1,8 @@
 #!/bin/bash
-#   
 #
+#
+
+set -e
 
 git remote rm whatdoineed2do || true
 

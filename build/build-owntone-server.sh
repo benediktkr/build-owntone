@@ -23,10 +23,6 @@ fi
 echo "Cleaning up..."
 find dist/ -name "owntone-server_${OWNTONE_VERSION}_*.tar.gz" -print -delete
 find dist/ -name "owntone-server_${OWNTONE_VERSION}_*.deb" -print -delete
-if [[ -d "dist/target" ]]; then
-    echo "removing: dist/target/"
-    rm -r dist/target
-fi
 if [[ -d "target/owntone-server" ]]; then
     echo "removing: target/owntone-server"
     rm -r target/owntone-server
@@ -51,7 +47,7 @@ echo
 echo "Building container with uid=${OWNTONE_UID}, gid=${OWNTONE_GID}"
 
 (
-    set -x
+    set -xe
 
     ls -1 dist/
 
@@ -68,19 +64,22 @@ echo "Building container with uid=${OWNTONE_UID}, gid=${OWNTONE_GID}"
         $DOCKER_OPT_TTY \
         --name owntone-build \
         -u $(id -u) \
-        -v $(pwd)/dist/:/mnt/dist/ \
+        -v ./dist/:/mnt/dist/ \
+        -v ./target/:/mnt/target/ \
         owntone-server-builder:${OWNTONE_VERSION} \
-            cp -r /usr/local/src/dist/. /mnt/dist/
+            bash -c "
+                cp -rv /usr/local/src/dist/. /mnt/dist/ && \
+                cp -r /usr/local/src/target/ /mnt/target/owntone-server/
+            "
 )
 
 echo
 ls -1 dist/
 ls -lah dist/*.deb
-dpkg-deb -c dist/owntone-server_${OWNTONE_VERSION}_*.deb
 echo
 
 (
-    set -x
+    set -xe
     docker build \
         --pull \
         --build-arg "OWNTONE_UID=$OWNTONE_UID" \

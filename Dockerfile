@@ -32,21 +32,19 @@ RUN set -x && \
 
 
 USER owntone
-ENV DISTDIR=/usr/local/src/dist
-RUN mkdir ${DISTDIR}
 
 COPY --chown=owntone:owntone owntone-server/ /usr/local/src/owntone-server/
 COPY docker/compile-owntone.sh /usr/local/bin/compile-owntone.sh
 WORKDIR /usr/local/src/owntone-server/
-
-RUN /usr/local/bin/compile-owntone.sh
+RUN set -x && \
+    mkdir -pv /usr/local/src/target /usr/local/src/dist && \
+    /usr/local/bin/compile-owntone.sh
 
 COPY docker/package-owntone.sh /usr/local/bin/package-owntone.sh
 COPY docker/after-install.sh /usr/local/src/after-install.sh
-
-WORKDIR /usr/local/src/dist
-
-RUN /usr/local/bin/package-owntone.sh
+WORKDIR /usr/local/src/
+RUN set -x && \
+    /usr/local/bin/package-owntone.sh
 
 
 
