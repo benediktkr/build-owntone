@@ -71,15 +71,14 @@ echo "Building container with uid=${OWNTONE_UID}, gid=${OWNTONE_GID}"
         -v ./target/:/mnt/target/ \
         owntone-server-builder:${OWNTONE_VERSION} \
             bash -c "
+                cp -v /usr/local/src/owntone-build.env /mnt/target && \
                 cp -rv /usr/local/src/dist/. /mnt/dist/ && \
                 cp -r /usr/local/src/target/ /mnt/target/owntone-server/
             "
 )
 
-echo
-ls -1 dist/
-ls -lah dist/*.deb
-echo
+source target/owntone-build.env
+ls -lah dist/$OWNTONE_SERVER_DEB
 
 (
     set -x

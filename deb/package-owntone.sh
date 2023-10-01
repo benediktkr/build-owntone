@@ -31,6 +31,7 @@ tar \
 if [[ ! "${OWNTONE_VERSION}" =~ "^[0-9].*$" ]]; then
     echo "environment var is set: 'OWNTONE_VERSION'"
     echo "OWNTONE_VERSION: ${OWNTONE_VERSION}"
+    VERSION=${OWNTONE_VERSION}
 else
     echo "environment var not version or not set: 'OWNTONE_VERSION'"
     VERSION=$(./target/usr/sbin/owntone --version | cut -d' ' -f2)
@@ -72,7 +73,9 @@ fpm \
     -a ${ARCH} \
     -s dir target/=/
 
+echo "OWNTONE_SERVER_DEB=${NAME}_${VERSION}_${ARCH}.deb" >> ./owntone-build.env
 
 dpkg -I dist/${NAME}_${VERSION}_${ARCH}.deb
 dpkg -c dist/${NAME}_${VERSION}_${ARCH}.deb > dist/${NAME}_${VERSION}_${ARCH}.filelist.txt
 tree target/ > dist/${NAME}_${VERSION}_${ARCH}.filetree.txt
+
