@@ -5,6 +5,12 @@
 
 set -e
 
+error() {
+    echo
+    echo_red "ERROR: $1"
+    exit 1
+}
+
 source build/.colors.env
 
 if [[ -z "GITEA_SECRET" || -z "$GITEA_USER" ]]; then
@@ -18,12 +24,13 @@ else
 fi
 
 GITEA_URL=git.sudo.is
+# fail if auth is unsuccessful2
+curl -fsX GET https://${GITEA_SECRET}@${GITEA_URL}/api/v1/nodeinfo || error "curl to gitea failed!"
 
 echo_light_green "      [?] checking if there are published Debian builds for owntone-server $OWNTONE_VERSION"
 
 # ARCH doesnt factor in for checking
 CURL_OUT_OPT="-o /dev/null"
-
 
 set +e
 curl -fsiX GET $CURL_OUT_OPT https://${GITEA_SECRET}@${GITEA_URL}/api/v1/packages/${GITEA_USER}/debian/owntone-server/${OWNTONE_VERSION}
@@ -43,17 +50,10 @@ if [[ "${GITEA_PUBLISH}" == "true" || "${OWNTONE_FORCE_PUBLISH}" == "true" ]]; t
     # ARCH factors in here
     GITEA_UPLOAD_URL="https://${GITEA_SECRET}@${GITEA_URL}/api/packages/${GITEA_USER}"
 
-    [[ "${OWNTONE_FORCE_PUBLISH}" == "true" ]] && echo_orange "      [!] OWNTONE_FORCE_PUBLISH is set"
-
-    echo_green "      [^] Pushing docker container"
-    echo -n "          "
-    docker tag owntone-server:${OWNTONE_VERSION} ${GITEA_URL}/${GITEA_USER}/owntone-server:latest
-    docker push -q ${GITEA_URL}/${GITEA_USER}/owntone-server:latest
-
-    echo_green "      [^] Pushing docker container"
-    echo -n "          "
-    docker tag owntone-server:${OWNTONE_VERSION} ${GITEA_URL}/${GITEA_USER}/owntone-server:${OWNTONE_VERSION}
-    docker push -q ${GITEA_URL}/${GITEA_USER}/owntone-server:${OWNTONE_VERSION}
+    if [[ "${OWNTONE_FORCE_PUBLISH}" == "true" ]]; then
+        echo_orange "      [!] OWNTONE_FORCE_PUBLISH is set"
+        set +e
+    fi
 
     if [[ "${OWNTONE_BUILD_WEB}" != "false" ]]; then
         WEB_ZIP_FILE="owntone-web_${OWNTONE_VERSION}.zip"
@@ -67,6 +67,19 @@ if [[ "${GITEA_PUBLISH}" == "true" || "${OWNTONE_FORCE_PUBLISH}" == "true" ]]; t
     upload_deb=$(curl -s "${GITEA_UPLOAD_URL}/debian/pool/${ARCH}/main/upload" --upload-file dist/$DEB_FILE)
     echo_n_green "      [ ] done. "
     echo $upload_deb
+
+
+    set -e
+    echo_green "      [^] Pushing docker container"
+    echo -n "          "
+    docker tag owntone-server:${OWNTONE_VERSION} ${GITEA_URL}/${GITEA_USER}/owntone-server:latest
+    docker push -q ${GITEA_URL}/${GITEA_USER}/owntone-server:latest
+
+    echo_green "      [^] Pushing docker container"
+    echo -n "          "
+    docker tag owntone-server:${OWNTONE_VERSION} ${GITEA_URL}/${GITEA_USER}/owntone-server:${OWNTONE_VERSION}
+    docker push -q ${GITEA_URL}/${GITEA_USER}/owntone-server:${OWNTONE_VERSION}
+
 
 
 
