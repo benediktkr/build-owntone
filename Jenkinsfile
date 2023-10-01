@@ -16,6 +16,7 @@ pipeline {
         buildDiscarder(logRotator(daysToKeepStr: '30', numToKeepStr: '10', artifactNumToKeepStr: '1'))
     }
     environment {
+        GITEA_URL = "git.sudo.is"
         GIT_CONFIG_PARAMETERS = "'color.ui=always' 'advice.detachedHead=false'"
         OWNTONE_USE_GITHUB = params.use_github.toString()
         OWNTONE_REBASE_FILESCANS = params.rebase_filescans.toString()
@@ -32,6 +33,7 @@ pipeline {
             steps {
                 // this stage does the same as build/init-git.sh, but in Jenkins it makes sense to let Jenkins handle git with its git-functions instead of a shell script
                 script {
+                    env.GITEA_USER = sh(script: "echo $GIT_URL | cut -d'/' -f4", returnStdout: true).trim()
 
                     env.OWNTONE_GIT_URL = params.use_guithub ? "https://github.com/owntone" : "https://git.sudo.is/mirrors"
                     dir('owntone-server') {
@@ -74,7 +76,6 @@ pipeline {
             }
             steps {
                 script {
-                    env.GITEA_USER = sh(script: "echo $GIT_URL | cut -d'/' -f4", returnStdout: true).trim()
                     withCredentials([string(credentialsId: "gitea-user-${env.GITEA_USER}-full-token", variable: 'GITEA_SECRET')]) {
                         sh "build/publish.sh"
                     }
@@ -85,9 +86,20 @@ pipeline {
     post {
         success {
             archiveArtifacts(artifacts: "dist/*.tar.gz,dist/*.deb,dist/*.zip,dist/owntone_version.txt,dist/owntone-server_*.filelist.txt", fingerprint: true)
+            sh "cp -v dist/owntone-server_${OWNTONE_VERSION}_*.deb ${env.JENKINS_HOME}/artifacts"
+            build(job: "/utils/apt", wait: true, propagate: true, parameters: [[
+                $class: 'StringParameterValue',
+                name: 'filename',
+                value: "owntone-server_${OWNTONE_VERSION}_amd64.deb"
+            ]])
         }
         cleanup {
             cleanWs(deleteDirs: true, disableDeferredWipeout: true, notFailBuild: true)
+            sh "docker container rm oowntone-buil || true"
+            sh "docker iamge rm owntone-server-builder:${OWNTONE_VERSION} || true"
+            sh "docker image rm owntone-server:${OWNTONE_VERSION} || true"
+            sh "docker image rm ${GITEA_URL}/${GITEA_USER}/owntone-server:${OWNTONE_VERSION} || true"
+            sh "docker image rm  ${GITEA_URL}/${GITEA_USER}/owntone-server:latest || true"
         }
    }
 }

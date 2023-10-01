@@ -10,7 +10,8 @@ A custom build of the latest stable version of [`owntone`](https://github.com/ow
 
 [![owntone logo](owntone.png)](https://github.com/owntone)
 
-This build is published as both a Docker container and `.deb` package
+This projects builds, compiles and packages OwnTone, publishing both `.deb` packages and docker
+containers of the latest stable version.
 
 This build includes some (minor) custom changes to Owntone
 
