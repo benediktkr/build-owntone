@@ -16,7 +16,7 @@ if [[ "${OWNTONE_VERSION}" =~ "^[0-9].*$" ]]; then
     echo "environment var is set: 'OWNTONE_VERSION'"
     echo "OWNTONE_VERSION: ${OWNTONE_VERSION}"
 else
-    echo "environment var not set: 'OWNTONE_VERSION'"
+    echo "environment var not version or not set: 'OWNTONE_VERSION'"
     VERSION=$(./target/usr/sbin/owntone --version | cut -d' ' -f2)
     echo "owntone --version: '${VERSION}'"
 fi

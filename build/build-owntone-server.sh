@@ -19,7 +19,7 @@ if [[ -z "${OWNTONE_VERSION}" ]]; then
     exit 1
 fi
 
-echo
+
 echo "Cleaning up..."
 find dist/ -name "owntone-server_${OWNTONE_VERSION}_*.tar.gz" -print -delete
 find dist/ -name "owntone-server_${OWNTONE_VERSION}_*.deb" -print -delete

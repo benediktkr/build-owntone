@@ -1,21 +1,26 @@
 #!/bin/bash
 set -e
 
+source build/.colors.env
+
 usage() {
-    echo "usage: $0 [ARGUMENTS]"
+
+    FOO="show your tits, slut"
+    echo_var FOO
+    echo -e "${CYAN}usage${NC}: ${PURPLE}${0}${NC} ${BLUE}[ARGUMENTS]${NC}"
     echo
-    echo "Arguments:"
-    echo "  --use-github            use the upstream https://github.com/owntone/owntone-server"
-    echo "                          repo (default: false, use"
-    echo "                          https://git.sudo.is/mirrors/owntone-server)"
-    echo "  --rebase-filescans      build with support for partial library scans. Rebases branch"
-    echo "                          for owntone-server#1179 from"
-    echo "                          github:whatdoineed2do/forked-daapd (default: false)"
-    echo "  --no-build-web          don't build the OwnTone Web UI, use the build in"
-    echo "                          owntone-server/htdocs/"
-    echo "  --no-web-dark-reader    don't add dark-reader.css for dark theme (work in progress)"
-    echo "  --no-web-ws-url         don't change the url that the OwnTone Web"
-    echo "                          UI uses for the websocket"
+    echo -e "${YELLOW}Arguments${NC}:"
+    arg "--use-github" "            " "use the upstream https://github.com/owntone/owntone-server"
+    echo -e "                          repo (default: false, use"
+    echo -e "                          https://git.sudo.is/mirrors/owntone-server)"
+    arg "--rebase-filescans" "      "  "build with support for partial library scans. Rebases branch"
+    echo -e "                          for owntone-server#1179 from"
+    echo -e "                          github:whatdoineed2do/forked-daapd (default: false)"
+    arg "--no-build-web" "          " "don't build the OwnTone Web UI, use the build in"
+    echo -e "                          owntone-server/htdocs/"
+    arg "--no-web-dark-reader" "    " "don't add dark-reader.css for dark theme (work in progress)"
+    arg "--no-web-ws-url" "         " "don't change the url that the OwnTone Web"
+    echo -e "                          UI uses for the websocket"
     exit 2
 }
 
@@ -60,34 +65,39 @@ for arg in "$@"; do
         esac
 done
 
-echo "git-init.sh"
+
+#
+# This part is equivalent to the "checkout" stage in the Jenkinsfile
+#
+echo_stage "Checkout"
 build/git-init.sh
-echo
-
-echo "version.sh"
 source build/version.sh
-echo
-
-echo "git-checkout-version.sh"
+echo ${OWNTONE_VERSION} > dist/owntone_version.txt
 build/git-checkout-version.sh
-echo
 
+#
+# Jenkinsfile stage: 'rebase filescans'
+#
 if [[ "${OWNTONE_REBASE_FILESCANS}" == "true" ]]; then
-    echo "git-rebase-filescans.sh"
-    build/git-rebase-filesans.sh
+    echo_stage "rebase filescans"
+    build/git-rebase-filescans.sh
 else
-    echo "skipped: git-rebase-filescans.sh"
+    echo_skipped "rebase filescans"
 fi
-echo
 
+#
+# Jenkisfile stage: 'build owntone-web'
+#
 if [[ "${OWNTONE_BUILD_WEB}" != "false" ]]; then
-    echo "build-owntone-web.sh"
+    echo_stage "build owntone-web"
     build/build-owntone-web.sh
 else
-    echo "skipped: build-web.sh"
+    echo_skipped "build owntone-web"
 fi
-echo
 
-echo "build-owntone-server.sh"
+#
+# Jenknsfile stage: 'build owntone-server'
+#
+echo_stage "build owntone-server"
 build/build-owntone-server.sh
 
