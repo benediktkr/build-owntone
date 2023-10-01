@@ -68,7 +68,7 @@ pipeline {
         }
         stage('publish') {
             when {
-                expression { params.publish == "true" }
+                expression { params.publish == true }
             }
             steps {
                 script {

@@ -50,7 +50,7 @@ if [[ "${OWNTONE_PUBLISH_NEW}" == "true" ]]; then
     if [[ "${OWNTONE_PUBLISH}" != "false" ]]; then
         WEB_ZIP_FILE="owntone-web_${OWNTONE_VERSION}.zip"
         echo_green "  [^] Uploading: $WEB_ZIP_FILE"
-        curl "${GITEA_UPLOAD_URL}/generic/owntone-server/${OWNTONE_VERSION}/owntone-web_${OWNTONE_VERSION}.zip" --upload-file dist/$WEB_ZIP_FILE
+        curl "${GITEA_UPLOAD_URL}/generic/owntone-web/${OWNTONE_VERSION}/owntone-web_${OWNTONE_VERSION}.zip" --upload-file dist/$WEB_ZIP_FILE
         echo
     fi
 
