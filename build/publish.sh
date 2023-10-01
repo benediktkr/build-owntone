@@ -25,7 +25,7 @@ fi
 
 GITEA_URL=git.sudo.is
 # fail if auth is unsuccessful2
-curl -fsX GET https://${GITEA_SECRET}@${GITEA_URL}/api/v1/nodeinfo || error "curl to gitea failed!"
+curl -fsiX GET https://${GITEA_SECRET}@${GITEA_URL}/api/v1/nodeinfo || error "curl to gitea failed!"
 
 echo_light_green "      [?] checking if there are published Debian builds for owntone-server $OWNTONE_VERSION"
 
