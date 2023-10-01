@@ -28,7 +28,7 @@ tar \
     -czf dist/${NAME}_${OWNTONE_VERSION}_${ARCH}.tar.gz \
     ./
 
-if [[ "${OWNTONE_VERSION}" =~ "^[0-9].*$" ]]; then
+if [[ ! "${OWNTONE_VERSION}" =~ "^[0-9].*$" ]]; then
     echo "environment var is set: 'OWNTONE_VERSION'"
     echo "OWNTONE_VERSION: ${OWNTONE_VERSION}"
 else
