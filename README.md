@@ -17,7 +17,7 @@ This build includes some (minor) custom changes to Owntone
    extension for Firefox).
  * Web UI built without minimized javascript
  * Web socket is access by the Web UI on `/ws` (requires reverse proxy) instead of
-   separate port (see [`build-web.sh`](build/build-web.sh))
+   separate port (see [`web-change-ws-url.sh`](build/web-change-ws-url.sh))
  * Example nginx vhost config file is included
    (see [`01-owntone.conf`](etc/nginx/sites-available/01-owntone.conf)).
 
@@ -47,7 +47,7 @@ with shell scripts.
 By default OwnTone will spawn a websocket server on port thats separate from the main
 port (used for the API and Web UI), which are configured in `owntone.conf`:
 
-```conf
+```nginx
 general {
     # TCP port to listen on. Default port is 3689 (daap)
     port = 3689
@@ -58,12 +58,13 @@ general {
     wesocket_port = 3688
     # Websocket interface to bind listener to. Default is to listen on all interfaces
     websocket_interface = "0.0.0.0"
+}
 ```
 
 If you want to have a reverse proxy in front of OwnTone, serving all of the traffic
 including the websocket server, you can simply make OwnTone only listen on
 
-```conf
+```nginx
 general {
     # TCP port to listen on. Default port is 3689 (daap)
     port = 3689

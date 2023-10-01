@@ -6,14 +6,9 @@ shopt -s expand_aliases
 alias ls='ls --color=always'
 alias grep='grep --color=always'
 
-#/etc/init.d/dbus start
-#/etc/init.d/avahi-daemon start
-#mkdir /run/dbus
-#dbus-daemon --config-file=/usr/share/dbus-1/system.conf --print-address
-#dbus-launch
-#avahi-daemon --no-chroot --daemonize
-
-
+# * needs to run with --privileged
+# * avahi-daemon+dbus: -v /run/dbus:/run/dbus -v /run/avahi-daemon/socket:/run/avahi-daemon/socket
+# * uid in container needs to have permissions (group 'avahi'?)
 
 echo "/etc/owntone.conf:"
 grep -v "^[[:space:]]*\#" /etc/owntone.conf | grep .

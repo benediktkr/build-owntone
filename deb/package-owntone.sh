@@ -50,10 +50,13 @@ pwd
 ls -l
 
 set -x
+# TODO: this should maybe have '--deb-group media'?
 fpm \
     -t deb $DEPS\
     --deb-systemd ./target/etc/systemd/system/owntone.service \
     --deb-systemd ./target/etc/systemd/system/owntone@.service \
+    --deb-user owntone \
+    --deb-group owntone \
     --config-files /etc/owntone.conf \
     --deb-user owntone \
     --after-install ./after-install.sh \
