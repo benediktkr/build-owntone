@@ -23,7 +23,7 @@ This build includes some (minor) custom changes to Owntone
  * Example nginx vhost config file is included
    (see [`01-owntone.conf`](etc/nginx/sites-available/01-owntone.conf)).
 
-TODO changes:
+Changed TODO:
 
  * Change the default action to add an item to the queue instead of replacing the queue (see notes below). On
    a phone or touchscreen it is not so easy to tap the hamburger menu and I often accidentally wipe out my
