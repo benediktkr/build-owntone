@@ -74,6 +74,8 @@ fpm \
     -s dir target/=/
 
 echo "OWNTONE_SERVER_DEB=${NAME}_${VERSION}_${ARCH}.deb ; export OWNTONE_SERVER_DEB" >> ./owntone-build.env
+sha256sum dist/*.deb > dist/sha256sums.txt
+
 
 dpkg -I dist/${NAME}_${VERSION}_${ARCH}.deb
 dpkg -c dist/${NAME}_${VERSION}_${ARCH}.deb > dist/${NAME}_${VERSION}_${ARCH}.filelist.txt

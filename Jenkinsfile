@@ -91,7 +91,7 @@ pipeline {
             sh "env | grep OWNTONE"
         }
         success {
-            archiveArtifacts(artifacts: "dist/*.tar.gz,dist/*.deb,dist/*.zip,dist/owntone_version.txt,dist/owntone-server_*.filelist.txt", fingerprint: true)
+            archiveArtifacts(artifacts: "dist/*.tar.gz,dist/*.deb,dist/*.zip,dist/*.txt", fingerprint: true)
             sh "cp -v dist/owntone-server_${OWNTONE_VERSION}_*.deb ${env.JENKINS_HOME}/artifacts"
             build(job: "/utils/apt", wait: true, propagate: true, parameters: [[
                 $class: 'StringParameterValue',
