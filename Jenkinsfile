@@ -101,7 +101,7 @@ pipeline {
         }
         cleanup {
             cleanWs(deleteDirs: true, disableDeferredWipeout: true, notFailBuild: true)
-            sh "docker container rm oowntone-buil || true"
+            sh "docker container rm owntone-build || true"
             sh "docker iamge rm owntone-server-builder:${OWNTONE_VERSION} || true"
             sh "docker image rm owntone-server:${OWNTONE_VERSION} || true"
             sh "docker image rm ${GITEA_URL}/${GITEA_USER}/owntone-server:${OWNTONE_VERSION} || true"
