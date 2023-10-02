@@ -24,7 +24,7 @@ echo "Cleaning up..."
 find dist/ -name "owntone-server_${OWNTONE_VERSION}_*.tar.gz" -print -delete
 find dist/ -name "owntone-server_${OWNTONE_VERSION}_*.deb" -print -delete
 find dist/ -name "owntone-server_${OWNTONE_VERSION}_*.txt" -print -delete
-find dist/ -name ".arch.txt" -print -delete
+
 if [[ -f "target/owntone-build.env" ]]; then
     rm -v target/owntone-build.env
 fi
