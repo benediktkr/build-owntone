@@ -15,6 +15,9 @@ pipeline {
         disableConcurrentBuilds()
         buildDiscarder(logRotator(daysToKeepStr: '30', numToKeepStr: '10', artifactNumToKeepStr: '1'))
     }
+    triggers {
+        parameterizedCron('@weekly %publish=true,build_web=true,web_ws_url=true')
+    }
     environment {
         GITEA_URL = "git.sudo.is"
         GIT_CONFIG_PARAMETERS = "'color.ui=always' 'advice.detachedHead=false'"
