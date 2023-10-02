@@ -74,7 +74,7 @@ fpm \
 
 echo "OWNTONE_SERVER_DEB=owntone-server_${VERSION}_${ARCH}.deb ; export OWNTONE_SERVER_DEB" >> ./owntone-build.env
 dpkg -I dist/owntone-server_${VERSION}_${ARCH}.deb
-dpkg -c dist/owntone-server_${VERSION}_${ARCH}.deb > dist/owntone-server_${VERSION}_${ARCH}.filelist.txt
+#dpkg -c dist/owntone-server_${VERSION}_${ARCH}.deb > dist/owntone-server_${VERSION}_${ARCH}.filelist.txt
 
 if [[ -d ./target/owntone-web ]]; then
     fpm \
@@ -94,10 +94,27 @@ if [[ -d ./target/owntone-web ]]; then
 
     echo "OWNTONE_WEB_DEB=owntone-web_${VERSION}_all.deb ; export OWNTONE_WEB_DEB" >> ./owntone-build.env
     dpkg -I dist/owntone-web_${VERSION}_all.deb
-    dpkg -c dist/owntone-web_${VERSION}_all.deb > dist/owntone-web_${VERSION}.filelist.txt
+    #dpkg -c dist/owntone-web_${VERSION}_all.deb > dist/owntone-web_${VERSION}.filelist.txt
+
+    fpm \
+        -t deb \
+        -d owntone-server \
+        -d ownone-web \
+        --maintainer "sudo.is <pkg@sudo.is>" \
+        --vendor "OwnTone (https://github.com/owntone), package by sudo.is" \
+        --url "https://git.sudo.is/ben/build-owntone" \
+        --license "GPLv2" \
+        --description "OwnTone builds for sudo.is" \
+        -p ./dist/ \
+        -n owntone-full \
+        -v $VERSION \
+        -a $ARCH \
+        -s empty
+
+    echo "OWNTONE_FULL_DEB=owntone-full_${VERSION}_${ARCH}.deb ; export OWNTONE_FULL_DEB" >> ./owntone-build.env
 fi
 
-tree target/ > dist/${NAME}_${VERSION}_${ARCH}.filetree.txt
+#tree target/ > dist/owntone-server_${VERSION}_${ARCH}.filetree.txt
 
 sha256sum dist/*.deb > dist/sha256sums.txt
 cat dist/sha256sums.txt
