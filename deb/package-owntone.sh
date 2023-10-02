@@ -15,7 +15,6 @@ if [[ ! -d ./target/usr ]]; then
     exit 3
 fi
 
-NAME="owntone-server"
 ARCH=$(dpkg --print-architecture)
 
 # -C ${TARGETDIR}
@@ -25,7 +24,7 @@ ARCH=$(dpkg --print-architecture)
 
 tar \
     -C ./target \
-    -czf dist/${NAME}_${OWNTONE_VERSION}_${ARCH}.tar.gz \
+    -czf dist/owntone-server_${OWNTONE_VERSION}_${ARCH}.tar.gz \
     ./
 
 if [[ ! "${OWNTONE_VERSION}" =~ "^[0-9].*$" ]]; then
@@ -68,16 +67,39 @@ fpm \
     --license "GPLv2" \
     --description "OwnTone builds for sudo.is" \
     -p ./dist/ \
-    -n ${NAME} \
+    -n owntone-server \
     -v ${VERSION} \
     -a ${ARCH} \
     -s dir target/=/
 
-echo "OWNTONE_SERVER_DEB=${NAME}_${VERSION}_${ARCH}.deb ; export OWNTONE_SERVER_DEB" >> ./owntone-build.env
-sha256sum dist/*.deb > dist/sha256sums.txt
+echo "OWNTONE_SERVER_DEB=owntone-server_${VERSION}_${ARCH}.deb ; export OWNTONE_SERVER_DEB" >> ./owntone-build.env
+dpkg -I dist/owntone-server_${VERSION}_${ARCH}.deb
+dpkg -c dist/owntone-server_${VERSION}_${ARCH}.deb > dist/owntone-server_${VERSION}_${ARCH}.filelist.txt
 
+if [[ -d ./target/owntone-web ]]; then
+    fpm \
+        -t deb \
+        --deb-user owntone \
+        --deb-group owntone \
+        --maintainer "sudo.is <pkg@sudo.is>" \
+        --vendor "OwnTone (https://github.com/owntone), package by sudo.is" \
+        --url "https://git.sudo.is/ben/build-owntone" \
+        --license "GPLv2" \
+        --description "OwnTone builds for sudo.is" \
+        -p ./dist/ \
+        -n owntone-web \
+        -v ${VERSION} \
+        -a all \
+        -s dir target/owntone-web/=/usr/share/owntone/htdocs/
 
-dpkg -I dist/${NAME}_${VERSION}_${ARCH}.deb
-dpkg -c dist/${NAME}_${VERSION}_${ARCH}.deb > dist/${NAME}_${VERSION}_${ARCH}.filelist.txt
+    echo "OWNTONE_WEB_DEB=owntone-web_${VERSION}_all.deb ; export OWNTONE_WEB_DEB" >> ./owntone-build.env
+    dpkg -I dist/owntone-web_${VERSION}_all.deb
+    dpkg -c dist/owntone-web_${VERSION}_all.deb > dist/owntone-web_${VERSION}.filelist.txt
+fi
+
 tree target/ > dist/${NAME}_${VERSION}_${ARCH}.filetree.txt
+
+sha256sum dist/*.deb > dist/sha256sums.txt
+cat dist/sha256sums.txt
+
 

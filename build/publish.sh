@@ -68,11 +68,11 @@ if [[ "${GITEA_PUBLISH}" == "true" || "${OWNTONE_FORCE_PUBLISH}" == "true" ]]; t
 
 
     if [[ "${OWNTONE_BUILD_WEB}" != "false" ]]; then
-        WEB_ZIP_FILE="owntone-web_${OWNTONE_VERSION}.zip"
+        DEB_FILE_WEB="owntone-web_${OWNTONE_VERSION}_all.deb"
         echo_green "      [^] Uploading: $WEB_ZIP_FILE"
-        upload_web_zip=$(curl -s "${GITEA_UPLOAD_URL}/generic/owntone-web/${OWNTONE_VERSION}/owntone-web_${OWNTONE_VERSION}.zip" --upload-file dist/$WEB_ZIP_FILE)
+        upload_deb_web=$(curl -s "${GITEA_UPLOAD_URL}/debian/pool/all/main/upload" --upload-file dist/$DEB_FILE_WEB)
         echo_n_green "      [ ] done. "
-        echo $upload_web_zip
+        echo $upload_deb_web
     fi
     DEB_FILE="owntone-server_${OWNTONE_VERSION}_${ARCH}.deb"
     echo_green "      [^] Uploding: $DEB_FILE..."

@@ -79,6 +79,7 @@ fi
         -v ${CACHE_DIR}:/home/node/.npm \
         -v ${NODE_MODULES_DIR}:/owntone-server/web-src/node_modules \
         -e FORCE_COLOR=1 \
+        -e TERM="xterm256-color" \
         -e NPM_CONFIG_PREFIX=/home/node/.npm \
         -e NODE_PATH=/home/node/.npm/node_modules \
         -e NODE_MODULES=/home/node/.npm/node_modules \
@@ -92,7 +93,7 @@ fi
                 npm run build -- --minify=false --outDir=/${OUTPUT_DIR} --emptyOutDir
             "
 
-    ls -1 dist/
+    ls -lah dist/
 )
 
 echo

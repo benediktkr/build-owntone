@@ -70,6 +70,9 @@ pipeline {
                 sh "build/build-owntone-server.sh"
                 script {
                     env.OWNTONE_SERVER_DEB = sh(script: "build/echo-owntone-server-deb.sh", returnStdout: true).trim()
+                    env.OWNTONE_WEB_DEB = sh(script: "build/echo-owntone-web-deb.sh", returnStdout: true).trim()
+                    echo "owntone-server: ${env.OWNTONE_SERVER_DEB}"
+                    echo "owntone-web: ${env.OWNTONE_WEB_DEB}"
                 }
             }
         }
@@ -91,12 +94,18 @@ pipeline {
             sh "env | grep OWNTONE"
         }
         success {
-            archiveArtifacts(artifacts: "dist/*.tar.gz,dist/*.deb,dist/*.zip,dist/*.txt", fingerprint: true)
-            sh "cp -v dist/owntone-server_${OWNTONE_VERSION}_*.deb ${env.JENKINS_HOME}/artifacts"
+            archiveArtifacts(artifacts: "dist/*.tar.gz,dist/*.deb,dist/*.zip,dist/owntone_version.txt,dist/sha256sums.txt", fingerprint: true)
+            sh "cp -v dist/${env.OWNTONE_SERVER_DEB} ${env.JENKINS_HOME}/artifacts"
             build(job: "/utils/apt", wait: true, propagate: true, parameters: [[
                 $class: 'StringParameterValue',
                 name: 'filename',
-                value: "owntone-server_${OWNTONE_VERSION}_amd64.deb"
+                value: env.OWNTONE_SERVER_DEB
+            ]])
+            sh "cp -v dist/${env.OWNTONE_WEB_DEB} ${env.JENKINS_HOME}/artifacts"
+            build(job: "/utils/apt", wait: true, propagate: true, parameters: [[
+                $class: 'StringParameterValue',
+                name: 'filename',
+                value: env.OWNTONE_WEB_DEB
             ]])
         }
         cleanup {

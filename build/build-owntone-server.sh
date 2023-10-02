@@ -82,6 +82,8 @@ echo "Building container with uid=${OWNTONE_UID}, gid=${OWNTONE_GID}"
 
 source target/owntone-build.env
 ls -lah dist/$OWNTONE_SERVER_DEB
+[[ -f "dist/${OWNTONE_WEB_DEB}" ]] && ls -lah dist/$OWNTONE_WEB_DEB
+
 
 (
     set -x

@@ -41,6 +41,8 @@ RUN set -x && \
     mkdir -pv /usr/local/src/target /usr/local/src/dist && \
     /usr/local/bin/compile-owntone.sh
 
+# if we build the web ui, there will be an 'owntone-web' dir in 'target'
+COPY --chown=owntone:owntone target/ /usr/local/src/target/
 COPY deb/package-owntone.sh /usr/local/bin/package-owntone.sh
 COPY deb/after-install.sh /usr/local/src/after-install.sh
 WORKDIR /usr/local/src/
