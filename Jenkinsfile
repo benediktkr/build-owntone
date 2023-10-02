@@ -95,18 +95,18 @@ pipeline {
         }
         success {
             archiveArtifacts(artifacts: "dist/*.tar.gz,dist/*.deb,dist/*.zip,dist/owntone_version.txt,dist/sha256sums.txt", fingerprint: true)
-            sh "cp -v dist/${env.OWNTONE_SERVER_DEB} ${env.JENKINS_HOME}/artifacts"
-            build(job: "/utils/apt", wait: true, propagate: true, parameters: [[
-                $class: 'StringParameterValue',
-                name: 'filename',
-                value: env.OWNTONE_SERVER_DEB
-            ]])
-            sh "cp -v dist/${env.OWNTONE_WEB_DEB} ${env.JENKINS_HOME}/artifacts"
-            build(job: "/utils/apt", wait: true, propagate: true, parameters: [[
-                $class: 'StringParameterValue',
-                name: 'filename',
-                value: env.OWNTONE_WEB_DEB
-            ]])
+            script {
+                    if (params.publish == true || params.force_publish == true) {
+                    [env.OWNTONE_SERVER_DEB, env.OWNTONE_WEB_DEB].each { deb ->
+                        sh "cp -v dist/${deb} ${env.JENKINS_HOME}/artifacts"
+                        build(job: "/utils/apt", wait: true, propagate: true, parameters: [[
+                            $class: 'StringParameterValue',
+                            name: 'filename',
+                            value: deb
+                        ]])
+                    }
+                }
+            }
         }
         cleanup {
             cleanWs(deleteDirs: true, disableDeferredWipeout: true, notFailBuild: true)
