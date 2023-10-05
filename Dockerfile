@@ -1,4 +1,5 @@
 FROM ubuntu:latest as base
+MAINTAINER "ben <pkg@sudo.is>"
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
