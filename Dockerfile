@@ -16,7 +16,9 @@ RUN set -x && \
     groupadd -g ${OWNTONE_GID} owntone && \
     useradd -u ${OWNTONE_UID} -g ${OWNTONE_GID} -ms /bin/bash owntone && \
     apt-get -y update && \
-    apt-get install -y $(sed 's/\n/ /g' /tmp/dependencies-apt.txt)
+    apt-get install -y $(sed 's/\n/ /g' /tmp/dependencies-apt.txt) && \
+    apt-get clean && \
+    apt-get autoclean
 
 
 FROM base as builder
@@ -28,9 +30,11 @@ RUN set -x && \
         libasound2-dev libmxml-dev libgcrypt20-dev libavahi-client-dev zlib1g-dev \
         libevent-dev libplist-dev libsodium-dev libjson-c-dev libwebsockets-dev \
         libcurl4-openssl-dev libprotobuf-c-dev libpulse-dev libgnutls*-dev \
-        ruby ruby-dev rubygems \
-        tree && \
+        tree \
+        ruby ruby-dev rubygems && \
     gem install --no-document fpm && \
+    apt-get clean && \
+    apt-get autoclean && \
     chown -R owntone:owntone /usr/local/src/
 
 USER owntone
@@ -58,6 +62,7 @@ RUN set -x && \
     echo usermod -u 1001 owntone && \
     dpkg -i /tmp/owntone-server_${OWNTONE_VERSION}_amd64.deb && \
     apt-get clean && \
+    apt-get autoclean && \
     rm /tmp/owntone-server_*_amd64.deb
 
 # RUN ldd /usr/sbin/owntone && dpkg-deb -c /tmp/owntone_0.1.0_amd64.deb && ls -ld /var/cache/owntone
