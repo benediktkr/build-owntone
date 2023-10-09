@@ -183,14 +183,23 @@ the dependencies for building.
 ## run
 
 To run as a non-root user, you need to use `avahi-daemon` and `dbus` from the
-host (which sort of defeats the purpose):
+host.
+
+ * https://github.com/mviereck/x11docker/issues/271
+ * https://github.com/mviereck/x11docker/wiki/How-to-connect-container-to-DBus-from-host
+
+To do that you can either run the container as `--privileged` (wrong), or
+set `--security-opt apparmor=unconfied` to circumvent AppArmor (better). In both
+cases, the process acessing `/var/run/avahi-daemon/socket` needs to have the
+same UID as owns the socket
 
 ```shell
 docker run \
     -it \
     --name owntone \
     --net=host \
-    --privileged \
+    --security-opt apparmor=unconfined \
+    --user ${uid}:${gid} \
     -v /var/run/dbus:/var/run/dbus \
     -v /run/avahi-daemon/socket:/run/avahi-daemon/socket \
     -v owntone.conf:/etc/owntone.conf \
@@ -200,11 +209,13 @@ docker run \
     git.sudo.is/ben/owntone-server:latest
 ```
 
-note that you can change the defaults paths `/srv/music` and
+The container has the build args `OWNTONE_UID` and `OWNTONE_GID` if you
+want to build it with a different default user for running OwnTone. Note
+that you can change the defaults paths `/srv/music` and
 `/var/cache/owntone` in `owntone.conf` to better suit your needs, if
 you want.
 
-the container starts as root, and then the `owntone` binary `setuid`s
+The container can also start as root, and then the `owntone` binary `setuid`s
 itself down to the user that you have specified in
 `owntone.conf`. note that this username (cant specify uid) has to
 exist in the container. if you want to change it you can rebuild the
