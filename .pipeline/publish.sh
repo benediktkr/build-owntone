@@ -11,7 +11,7 @@ error() {
     exit 1
 }
 
-source build/.colors.env
+source .pipeline/.colors.env
 
 if [[ -z "GITEA_SECRET" || -z "$GITEA_USER" ]]; then
     echo "need both 'GITEA_USER' and 'GITEA_SECRET' to publish packages to gitea!"

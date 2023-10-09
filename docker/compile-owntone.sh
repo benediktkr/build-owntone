@@ -19,6 +19,7 @@ autoreconf -i
 #
 
 ./configure \
+    --enable-webinterface \
     --with-pulseaudio \
     --enable-chromecast \
     --enable-lastfm \

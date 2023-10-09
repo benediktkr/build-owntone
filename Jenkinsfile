@@ -34,14 +34,14 @@ pipeline {
     stages {
         stage('checkout') {
             steps {
-                // this stage does the same as build/init-git.sh, but in Jenkins it makes sense to let Jenkins handle git with its git-functions instead of a shell script
+                // this stage does the same as .pipeline/init-git.sh, but in Jenkins it makes sense to let Jenkins handle git with its git-functions instead of a shell script
                 script {
                     env.GITEA_USER = sh(script: "echo $GIT_URL | cut -d'/' -f4", returnStdout: true).trim()
 
                     env.OWNTONE_GIT_URL = params.use_guithub ? "https://github.com/owntone" : "https://git.sudo.is/mirrors"
                     dir('owntone-server') {
                         git(url: env.OWNTONE_GIT_URL + "/owntone-server", branch: env.OWNTONE_MAIN_BRANCH)
-                        env.OWNTONE_VERSION = sh(script: "../build/version.sh", returnStdout: true).trim()
+                        env.OWNTONE_VERSION = sh(script: "../.pipeline/version.sh", returnStdout: true).trim()
                         sh "git checkout ${env.OWNTONE_VERSION}"
                     }
                     currentBuild.displayName += " - v${env.OWNTONE_VERSION}"
@@ -57,7 +57,7 @@ pipeline {
                 expression { params.rebase_filescans == true }
             }
             steps {
-                sh "build/git-rebase-filescans.sh"
+                sh ".pipeline/git-rebase-filescans.sh"
             }
         }
         stage('build owntone-web') {
@@ -65,15 +65,15 @@ pipeline {
                 expression { params.build_web == true }
             }
             steps {
-                sh "build/build-owntone-web.sh"
+                sh ".pipeline/build-owntone-web.sh"
             }
         }
         stage('build owntone-server') {
             steps {
-                sh "build/build-owntone-server.sh"
+                sh ".pipeline/build-owntone-server.sh"
                 script {
-                    env.OWNTONE_SERVER_DEB = sh(script: "build/echo-owntone-server-deb.sh", returnStdout: true).trim()
-                    env.OWNTONE_WEB_DEB = sh(script: "build/echo-owntone-web-deb.sh", returnStdout: true).trim()
+                    env.OWNTONE_SERVER_DEB = sh(script: ".pipeline/echo-owntone-server-deb.sh", returnStdout: true).trim()
+                    env.OWNTONE_WEB_DEB = sh(script: ".pipeline/echo-owntone-web-deb.sh", returnStdout: true).trim()
                 }
                 echo "owntone-server: ${env.OWNTONE_SERVER_DEB}"
                 echo "owntone-web: ${env.OWNTONE_WEB_DEB}"
@@ -89,7 +89,7 @@ pipeline {
             script {
                 if (params.publish == true || params.force_publish == true) {
                     withCredentials([string(credentialsId: "gitea-user-${env.GITEA_USER}-full-token", variable: 'GITEA_SECRET')]) {
-                        sh "build/publish.sh"
+                        sh ".pipeline/publish.sh"
                     }
                     [env.OWNTONE_SERVER_DEB, env.OWNTONE_WEB_DEB].each { deb ->
                         sh "cp -v dist/${deb} ${env.JENKINS_HOME}/artifacts"

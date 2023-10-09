@@ -11,7 +11,7 @@ ARG OWNTONE_GID=1301
 ARG OWNTONE_VERSION
 ENV OWNTONE_VERSION=${OWNTONE_VERSION}
 
-COPY deb/dependencies-apt.txt /tmp/dependencies-apt.txt
+COPY docker/dependencies-apt.txt /tmp/dependencies-apt.txt
 RUN set -x && \
     groupadd -g ${OWNTONE_GID} owntone && \
     useradd -u ${OWNTONE_UID} -g ${OWNTONE_GID} -ms /bin/bash owntone && \
@@ -40,7 +40,7 @@ RUN set -x && \
 USER owntone
 
 COPY --chown=owntone:owntone owntone-server/ /usr/local/src/owntone-server/
-COPY build/compile-owntone.sh /usr/local/bin/compile-owntone.sh
+COPY docker/compile-owntone.sh /usr/local/bin/compile-owntone.sh
 WORKDIR /usr/local/src/owntone-server/
 RUN set -x && \
     mkdir -pv /usr/local/src/target /usr/local/src/dist && \
@@ -48,8 +48,8 @@ RUN set -x && \
 
 # if we build the web ui, there will be an 'owntone-web' dir in 'target'
 COPY --chown=owntone:owntone target/ /usr/local/src/target/
-COPY deb/package-owntone.sh /usr/local/bin/package-owntone.sh
-COPY deb/after-install.sh /usr/local/src/after-install.sh
+COPY docker/package-owntone.sh /usr/local/bin/package-owntone.sh
+COPY docker/after-install.sh /usr/local/src/after-install.sh
 WORKDIR /usr/local/src/
 RUN set -x && \
     /usr/local/bin/package-owntone.sh
@@ -67,7 +67,7 @@ RUN set -x && \
 
 # RUN ldd /usr/sbin/owntone && dpkg-deb -c /tmp/owntone_0.1.0_amd64.deb && ls -ld /var/cache/owntone
 COPY etc/owntone.conf /etc/owntone.conf
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 USER owntone
 WORKDIR /home/owntone

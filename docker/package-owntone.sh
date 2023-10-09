@@ -57,8 +57,11 @@ fpm \
     --deb-systemd ./target/etc/systemd/system/owntone@.service \
     --deb-user owntone \
     --deb-group owntone \
+    --deb-systemd-auto-start \
+    --deb-systemd-enable \
+    --deb-systemd-restart-after-upgrade \
+    --deb-auto-config-files \
     --config-files /etc/owntone.conf \
-    --deb-user owntone \
     --after-install ./after-install.sh \
     --directories /var/cache/owntone \
     --maintainer "sudo.is <pkg@sudo.is>" \

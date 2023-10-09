@@ -14,14 +14,14 @@ alias grep='grep --color=always'
 echo
 if [[ "${OWNTONE_WEB_WS_URL}" != "false" ]]; then
     echo "web-change-ws-url.sh"
-    build/web-change-ws-url.sh
+    .pipeline/web-change-ws-url.sh
 else
     echo "skipped: web-change-ws-url.sh"
 fi
 
 if [[ "${OWNTONE_WEB_DARK_READER}" != "false" ]]; then
     echo "web-add-dark-reader.sh"
-    build/web-add-dark-reader.sh
+    .pipeline/web-add-dark-reader.sh
 else
     echo "skipped: web-add-dark-reader.sh"
 fi

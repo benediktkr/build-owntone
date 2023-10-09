@@ -1,0 +1,44 @@
+---
+- name: ensure file/dir ownership
+  file:
+    state: "{{ item.state }}"
+    path: "{{ item.path }}"
+    owner: owntone
+    group: owntone
+    mode: '0755'
+  with_items:
+    - path: /var/log/owntone.log
+      state: present
+    - path: /var/cache/owntone
+      state: directory
+
+- name: start owntone container
+  docker_container:
+    name: owntone
+    image: git.sudo.is/ben/owntone-server:latest
+    detach: true
+    pull: true
+    auto_remove: false
+    restart_policy: "no"
+    state: started
+    container_default_behavior: compatibility
+    networks_cli_compatible: false
+    user: "{{ owntone_user.uid }}:{{ owntone_group.gid }}"
+    network_mode: host
+    privileged: false
+    mounts:
+      - type: bind
+        source: /run/dbus
+        target: /run/dbus
+      - type: bind
+        source: /run/avahi-daemon/socket
+        target: /run/avahi-daemon/socket
+      - type: bind
+        source: /usr/local/etc/owntone.conf
+        target: /etc/owntone.conf
+      - type: bind
+        source: /var/log/owntone.conf
+        target: /var/log/owntone.conf
+      - type: bind
+        source: /srv/audio
+        target: /srv/audio

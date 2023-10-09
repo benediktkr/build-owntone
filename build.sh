@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-source build/.colors.env
+source .pipeline/.colors.env
 
 usage() {
     echo -e "${CYAN}usage${NC}: ${PURPLE}${0}${NC} ${BLUE}[ARGUMENTS]${NC}"
@@ -105,17 +105,17 @@ done
 # This part is equivalent to the "checkout" stage in the Jenkinsfile
 #
 echo_stage "Checkout"
-build/git-init.sh
-source build/version.sh
+.pipeline/git-init.sh
+source .pipeline/version.sh
 echo ${OWNTONE_VERSION} > dist/owntone_version.txt
-build/git-checkout-version.sh
+.pipeline/git-checkout-version.sh
 
 #
 # Jenkinsfile stage: 'rebase filescans'
 #
 if [[ "${OWNTONE_REBASE_FILESCANS}" == "true" ]]; then
     echo_stage "rebase filescans"
-    build/git-rebase-filescans.sh
+    .pipeline/git-rebase-filescans.sh
 else
     echo_skipped "rebase filescans"
 fi
@@ -125,7 +125,7 @@ fi
 #
 if [[ "${OWNTONE_BUILD_WEB}" != "false" ]]; then
     echo_stage "build owntone-web"
-    build/build-owntone-web.sh
+    .pipeline/build-owntone-web.sh
 else
     echo_skipped "build owntone-web"
 fi
@@ -134,7 +134,7 @@ fi
 # Jenknsfile stage: 'build owntone-server'
 #
 echo_stage "build owntone-server"
-build/build-owntone-server.sh
+.pipeline/build-owntone-server.sh
 source target/owntone-build.env
 
 #
@@ -142,7 +142,7 @@ source target/owntone-build.env
 #
 if [[ "${OWNTONE_PUBLISH}" == "true" || "${OWNTONE_FORCE_PUBLISH}" == "true" ]]; then
     echo_stage "publish"
-    build/publish.sh
+    .pipeline/publish.sh
 else
     echo_skipped "publish"
 fi
