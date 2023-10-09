@@ -74,24 +74,12 @@ pipeline {
                 script {
                     env.OWNTONE_SERVER_DEB = sh(script: "build/echo-owntone-server-deb.sh", returnStdout: true).trim()
                     env.OWNTONE_WEB_DEB = sh(script: "build/echo-owntone-web-deb.sh", returnStdout: true).trim()
-                    echo "owntone-server: ${env.OWNTONE_SERVER_DEB}"
-                    echo "owntone-web: ${env.OWNTONE_WEB_DEB}"
                 }
+                echo "owntone-server: ${env.OWNTONE_SERVER_DEB}"
+                echo "owntone-web: ${env.OWNTONE_WEB_DEB}"
             }
         }
-        stage('publish') {
-            when {
-                expression { params.publish == true || params.force_publish == true }
-            }
-            steps {
-                script {
-                    withCredentials([string(credentialsId: "gitea-user-${env.GITEA_USER}-full-token", variable: 'GITEA_SECRET')]) {
-                        sh "build/publish.sh"
-                    }
-                }
-            }
-        }
-    }
+   }
     post {
         always {
             sh "env | grep OWNTONE"
@@ -99,14 +87,22 @@ pipeline {
         success {
             archiveArtifacts(artifacts: "dist/*.tar.gz,dist/*.deb,dist/*.zip,dist/owntone_version.txt,dist/sha256sums.txt", fingerprint: true)
             script {
-                    if (params.publish == true || params.force_publish == true) {
+                if (params.publish == true || params.force_publish == true) {
+                    withCredentials([string(credentialsId: "gitea-user-${env.GITEA_USER}-full-token", variable: 'GITEA_SECRET')]) {
+                        sh "build/publish.sh"
+                    }
                     [env.OWNTONE_SERVER_DEB, env.OWNTONE_WEB_DEB].each { deb ->
                         sh "cp -v dist/${deb} ${env.JENKINS_HOME}/artifacts"
-                        build(job: "/utils/apt", wait: true, propagate: true, parameters: [[
-                            $class: 'StringParameterValue',
-                            name: 'filename',
-                            value: deb
-                        ]])
+                        build(
+                            job: "/utils/apt",
+                            wait: true,
+                            propagate: true,
+                            parameters: [[
+                                $class: 'StringParameterValue',
+                                name: 'filename',
+                                value: deb
+                            ]]
+                        )
                     }
                 }
             }
