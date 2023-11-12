@@ -97,6 +97,7 @@ if [[ -d ./target/owntone-web ]]; then
 
     echo "OWNTONE_WEB_DEB=owntone-web_${VERSION}_all.deb ; export OWNTONE_WEB_DEB" >> ./owntone-build.env
     dpkg -I dist/owntone-web_${VERSION}_all.deb
+    dpkg -c dist/owntone-web_${VERSION}_all.deb
     #dpkg -c dist/owntone-web_${VERSION}_all.deb > dist/owntone-web_${VERSION}.filelist.txt
 
     fpm \
