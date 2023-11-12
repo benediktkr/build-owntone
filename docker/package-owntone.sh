@@ -77,6 +77,8 @@ fpm \
 
 echo "OWNTONE_SERVER_DEB=owntone-server_${VERSION}_${ARCH}.deb ; export OWNTONE_SERVER_DEB" >> ./owntone-build.env
 dpkg -I dist/owntone-server_${VERSION}_${ARCH}.deb
+dpkg -c dist/owntone-server_${VERSION}_${ARCH}.deb
+
 #dpkg -c dist/owntone-server_${VERSION}_${ARCH}.deb > dist/owntone-server_${VERSION}_${ARCH}.filelist.txt
 
 if [[ -d ./target/owntone-web ]]; then
