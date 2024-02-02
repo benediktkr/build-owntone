@@ -2,3 +2,4 @@ owntone-server/
 dist/*
 target/*
 test.conf
+.DS_Store

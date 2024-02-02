@@ -38,9 +38,10 @@ pipeline {
                 script {
                     env.GITEA_USER = sh(script: "echo $GIT_URL | cut -d'/' -f4", returnStdout: true).trim()
 
-                    env.OWNTONE_GIT_URL = params.use_guithub ? "https://github.com/owntone" : "https://git.sudo.is/mirrors"
+                    env.OWNTONE_GIT_URL = params.use_github ? "https://github.com/owntone" : "https://git.sudo.is/mirrors"
                     dir('owntone-server') {
                         git(url: env.OWNTONE_GIT_URL + "/owntone-server", branch: env.OWNTONE_MAIN_BRANCH)
+                        sh("git fetch --tags")
                         env.OWNTONE_VERSION = sh(script: "../.pipeline/version.sh", returnStdout: true).trim()
                         sh "git checkout ${env.OWNTONE_VERSION}"
                     }
