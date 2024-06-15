@@ -42,6 +42,9 @@ while read -r dep; do
     DEPS="${DEPS} -d $dep"
 done </tmp/dependencies-apt.txt
 
+# add dlna libs
+DEPS="${DEPS} -d libdlna-dev -d libdlna0"
+
 # create empto logfile, so its included in the package with ownership set correctly
 touch ./target/var/log/owntone.log
 ls -l ./target/var/log/owntone.log
