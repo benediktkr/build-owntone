@@ -1,6 +1,8 @@
 avahi-daemon
 avahi-utils
-gperfbisonflex
+gperf
+bison
+flex
 libasound2-dev
 libavahi-client-dev
 libavcodec-dev
