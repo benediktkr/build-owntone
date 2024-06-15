@@ -1,4 +1,4 @@
-FROM ubuntu:latest as base
+FROM ubuntu:22.04 as base
 MAINTAINER "ben <pkg@sudo.is>"
 
 ENV DEBIAN_FRONTEND=noninteractive
