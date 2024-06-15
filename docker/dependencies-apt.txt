@@ -1,8 +1,6 @@
 avahi-daemon
 avahi-utils
 libasound2-dev
-libasound2-dev
-libavahi-client-dev
 libavahi-client-dev
 libavcodec-dev
 libavfilter-dev
