@@ -11,8 +11,6 @@ libavformat-dev
 libavutil-dev
 libconfuse-dev
 libcurl4-openssl-dev
-libdlna-dev
-libdlna0
 libevent-dev
 libgcrypt20-dev
 libgnutls28-dev
