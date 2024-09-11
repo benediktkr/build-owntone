@@ -21,6 +21,7 @@ autoreconf -i
 ./configure \
     --enable-webinterface \
     --with-pulseaudio \
+    --with-avahi \
     --enable-chromecast \
     --enable-lastfm \
     --enable-preferairplay2 \
