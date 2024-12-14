@@ -74,8 +74,8 @@ fi
         $DOCKER_OPT_TTY \
         -w /owntone-server/web-src \
         -e "HOME=/home/node" \
-        -v ./owntone-server/web-src:/owntone-server/web-src \
-        -v ./${OUTPUT_DIR}:/${OUTPUT_DIR} \
+        -v $(pwd)/owntone-server/web-src:/owntone-server/web-src \
+        -v $(pwd)/${OUTPUT_DIR}:/${OUTPUT_DIR} \
         -v ${CACHE_DIR}:/home/node/.npm \
         -v ${NODE_MODULES_DIR}:/owntone-server/web-src/node_modules \
         -e FORCE_COLOR=1 \

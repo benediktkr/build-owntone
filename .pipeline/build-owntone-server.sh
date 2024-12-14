@@ -70,8 +70,8 @@ echo "Building container with uid=${OWNTONE_UID}, gid=${OWNTONE_GID}"
         $DOCKER_OPT_TTY \
         --name owntone-build \
         -u $(id -u) \
-        -v ./dist/:/mnt/dist/ \
-        -v ./target/:/mnt/target/ \
+        -v $(pwd)/dist/:/mnt/dist/ \
+        -v $(pwd)/target/:/mnt/target/ \
         owntone-server-builder:${OWNTONE_VERSION} \
             bash -c "
                 cp -v /usr/local/src/owntone-build.env /mnt/target && \
