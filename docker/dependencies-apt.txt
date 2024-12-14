@@ -16,7 +16,6 @@ libgcrypt20-dev
 libgnutls28-dev
 libgnutls30
 libjson-c-dev
-libmxml-dev
 libxml2-dev
 libplist-dev
 libprotobuf-c-dev
